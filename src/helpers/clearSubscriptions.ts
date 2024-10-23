@@ -8,7 +8,7 @@ export const clearSubscriptions = async (xClient: Readonly<XMPP.Agent>, pubJid: 
     node: node
   }
   return xClient.getSubscriptions(pubJid, opts).then((subs: PubsubSubscriptions) => {
-    const unsubPromises = subs.items ? subs.items.map((item: PubsubSubscription): Promise<PubsubSubscription> => {
+    const unsubPromises = (subs && subs.items) ? subs.items.map((item: PubsubSubscription): Promise<PubsubSubscription> => {
       console.log('Unsubscribing from', node, item)
       const opts: XMPP.PubsubUnsubscribeOptions = {
         subid: item.subid,
