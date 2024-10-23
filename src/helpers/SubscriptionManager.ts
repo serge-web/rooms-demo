@@ -78,6 +78,7 @@ export class SubsManager {
         }).catch((err: {error: StanzaError}) => {
           if (err.error.condition === StanzaErrorCondition.ItemNotFound) {
             console.warn('Node does not exist:', node, err)
+            // delete the stored subscription
             this.subs = this.subs.filter((item: NodeSubscription) => item.subId !== sub.subId)
           } else {
             console.error('Failed to subscribe to node:', node, err)

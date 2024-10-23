@@ -7,7 +7,8 @@ export const createNodeIfNecessary = async (xClient: XMPP.Agent, pubJid: string,
   xClient.getNodeConfig(pubJid, node).then(() => {
     // success
     console.log('got config for node', node)
-  }).catch((err: unknown) => {
+  }).catch((err: { error: { condition: string } }) => {
+    // ignore compiler warning for unknown type on line below
     if (err.error.condition === 'item-not-found') {
       console.log('creating node', node)
       // create node
@@ -18,7 +19,8 @@ export const createNodeIfNecessary = async (xClient: XMPP.Agent, pubJid: string,
           fields:[
             {name: 'pubsub#description', value: description},
             {name: 'pubsub#type', value: 'json'},
-            {name: 'pubsub#persist_items', value: true}
+            {name: 'pubsub#persist_items', value: true},
+            {name: 'pubsub#max_items', value: 'max'}
           ],
           type: 'submit',
           title: 'Node configuration'

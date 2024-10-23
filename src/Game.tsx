@@ -75,8 +75,6 @@ export const Game: React.FC<GameProps> = ({ setPlayerState, setGameState, setThe
   const [dialog, setDialog] = useState<string | null>(null);
   const [dialogTitle, setDialogTitle] = useState<string>('');
   
-  const [forceDetails] = useState<ForceDetails[]>([]);
-
   const [subsManager, setSubsManager] = useState<SubsManager | null>(null)
 
   // TODO: this flag prevents us setting up the client multiple times
@@ -341,7 +339,7 @@ return ( <div style={containerStyles}>
   sendMessage={sendMessage} isGameControl={isGameControl}
   properName={properName} isFeedbackObserver={isFeedbackObserver} newMessage={newMessage}
   showHidden={showHidden} setShowHidden={setShowHidden}
-  vCard={vCard} forceDetails={forceDetails} />
+  vCard={vCard} forceDetails={force} />
   <SimpleDialog dialog={dialog} setDialog={setDialog} dialogTitle={dialogTitle} />
 </div>
 )

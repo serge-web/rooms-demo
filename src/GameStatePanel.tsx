@@ -27,7 +27,7 @@ export default interface GameStateProps {
   isFeedbackObserver: boolean
   properName: string
   newMessage: XMPP.Stanzas.Forward | undefined
-  forceDetails: ForceDetails[] | undefined
+  forceDetails: ForceDetails | null
   vCard: XMPP.Stanzas.VCardTemp | undefined | null
 }
 
@@ -62,31 +62,26 @@ export const GameStatePanel: React.FC<GameStateProps> = ({ logout, sendMessage, 
   }, [myRooms])
 
   useEffect(() => {
-    if (vCard && forceDetails) {
-      const org = vCard.records?.find((record) => record.type === 'organization')
-      if (org && org.value) {
-        const thisForce = forceDetails.find((force) => force.id === org.value)
-        if (thisForce) {
-          const icon = () => {
-            const iconStyle: React.CSSProperties = {
-              color: thisForce?.color || '#333'
-            }
-            return <Person3Icon style={iconStyle}/>
+    if (forceDetails) {
+      if (forceDetails.icon) {
+        const icon = () => {
+          const iconStyle: React.CSSProperties = {
+            color: forceDetails?.color || '#333'
           }
-          setUserIcon(icon)
-
-          if (thisForce && thisForce.objective) {
-            setObjectivesIcon(<Tooltip title={thisForce.objective}>
-              <AdsClickIcon />
-            </Tooltip>)
-          } else {
-            setObjectivesIcon(<></>)
-          }
-
+          return <Person3Icon style={iconStyle}/>
         }
+        setUserIcon(icon)
+      }
+
+      if (forceDetails.objective) {
+        setObjectivesIcon(<Tooltip title={forceDetails.objective}>
+          <AdsClickIcon />
+        </Tooltip>)
+      } else {
+        setObjectivesIcon(<></>)
       }
     }
-  }, [vCard, forceDetails])
+  }, [forceDetails])
 
   const stepForward = () => {
     if (xClient) {
@@ -317,6 +312,8 @@ export const GameStatePanel: React.FC<GameStateProps> = ({ logout, sendMessage, 
     //   console.error('Error updating affiliations', err)
     // })
   }
+
+  console.log('Game state', forceDetails)
   
   return (
     <Card className='out-of-game-feed'>
