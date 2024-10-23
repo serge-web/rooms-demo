@@ -3,12 +3,13 @@ import * as XMPP from 'stanza';
 import { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import './Login.css';
 import { GameStatePanel } from './GameStatePanel';
-import { FORCE_DETAILS, GAME_STATE, GAME_STATE_NODE, GAME_THEME_NODE, THEME } from './Constants'
+import { FLAG_IS_FEEDBACK_OBSERVER, FLAG_IS_GAME_CONTROL, FORCE_DETAILS, FORCE_NODE, GAME_STATE, GAME_STATE_NODE, GAME_THEME_NODE, THEME } from './Constants'
 import { SimpleDialog } from './SimpleDialog';
 import { MUCAllRooms } from './MUCAllRooms';
 import { PlayerContext, PlayerContextInfo, RoomDetails } from './App';
-import { ThemeOptions, ThemeProvider } from '@mui/material';
+import { ThemeOptions } from '@mui/material';
 import { SubsManager } from './helpers/SubscriptionManager';
+import { VCardTemp } from 'stanza/protocol';
 
 export interface GamePresence {
   jid: string
@@ -42,35 +43,9 @@ export interface ThemeDetails extends GameData {
  
 export interface GameProps {
   setPlayerState: (state: null) => void
-  setGameState: (state: GameState) => void
-  parentTheme: ThemeOptions
+  setGameState: {(state: GameState): void}
+  setThemeOptions: {(theme: ThemeOptions): void}
 }
-
-
-
-// const handleDataMessage =(message: XMPP.Stanzas.Message, setGameState, states: GameState[], forces: ForceDetails[], setTheme:{(theme: ThemeOptions): void}): void => {
-//   const theId = message.id
-//   if (theId && theId.startsWith('_')) {
-//     const json = JSON.parse(message.body || '{}') as GameData
-//     const msgType = json.type
-//     switch(msgType) {
-//       case GAME_STATE:{
-//         states.push(json as GameState)
-//         break
-//       }
-//       case FORCE_DETAILS:{
-//         forces.push(json as ForceDetails)
-//         break
-//       }
-//       case THEME:{
-//         // Update the theme
-//         console.log('display', json as ThemeDetails)
-//         setTheme(createTheme((json as ThemeDetails).data))
-//         break
-//       }
-//     }
-//   }
-// }
 
 const onlyLastForce = (forces: ForceDetails[]): ForceDetails[] => {
   const map: {[index: string]: ForceDetails} = {}
@@ -82,7 +57,7 @@ const onlyLastForce = (forces: ForceDetails[]): ForceDetails[] => {
   })
 }
 
-export const Game: React.FC<GameProps> = ({ setPlayerState, setGameState, parentTheme }: GameProps) => {
+export const Game: React.FC<GameProps> = ({ setPlayerState, setGameState, setThemeOptions }: GameProps) => {
   const {jid, resourceName, xClient, myRooms, pubJid
    } = useContext(PlayerContext) as PlayerContextInfo
   const [trimmedRooms, setTrimmedRooms] = useState<RoomDetails[]>([]);
@@ -94,12 +69,13 @@ export const Game: React.FC<GameProps> = ({ setPlayerState, setGameState, parent
   const [isFeedbackObserver, setIsFeedbackObserver] = useState<boolean>(false);
   const [properName, setProperName] = useState<string>('');
   
+  const [forceId, setForceId] = useState<string>('');
+  const [force, setForce] = useState<ForceDetails | null>(null);
+
   const [dialog, setDialog] = useState<string | null>(null);
   const [dialogTitle, setDialogTitle] = useState<string>('');
   
   const [forceDetails] = useState<ForceDetails[]>([]);
-
-  const [theme] = useState<ThemeOptions>(parentTheme);
 
   const [subsManager, setSubsManager] = useState<SubsManager | null>(null)
 
@@ -152,7 +128,7 @@ export const Game: React.FC<GameProps> = ({ setPlayerState, setGameState, parent
       });
       
       xClient.on('bosh:terminate', (direction, data) => {
-        console.log('bosh:terminate: logging out', direction, 'data:', data)
+        console.log('bosh:terminate: logging out', direction, 'data:', data, !!force)
         // clear local data
         setNewMessage(undefined)
         setShowHidden(false)
@@ -197,31 +173,36 @@ export const Game: React.FC<GameProps> = ({ setPlayerState, setGameState, parent
         }
       });
 
-      xClient.on('muc:leave', (muc) => {
-        console.log('new MUC leave', muc)
-      });
+      // xClient.on('muc:leave', () => {
+      //   // console.log('new MUC leave', muc)
+      // });
       
       xClient.on('muc:error', (muc) => {
         console.log('new MUC error', muc)
       });
-     
-      // get my vcard
-      xClient.getVCard(jid).then((vcard) => {
-        setVCard(vcard)
-      }).catch(() => {
-        console.log('No vCard for', jid)
-        setVCard(null)
-      })
 
       // request carbons
       xClient.enableCarbons().then(() => {
         // console.log('carbons enabled')
-      }).catch((err) => {
+      }).catch((err: unknown) => {
         console.log('Failed to enable carbons', err)
       })
       
       // general presence announcement
       xClient.sendPresence()
+
+      // get my vcard
+      xClient.getVCard(jid).then((vcard: VCardTemp) => {
+        console.log('got vcard', vcard)
+        if (vcard.name || vcard.records) {
+          setVCard(vcard)
+        } else {
+          console.warn('Empty vcard received', vcard)
+        }
+      }).catch(() => {
+        console.log('No vcard for', jid)
+        setVCard(null)
+      })
   }
   
   // note: we ignore the exhaustive-deps warning here because#
@@ -240,11 +221,10 @@ useEffect(() => {
 
     subsManager.subscribeToNode(GAME_THEME_NODE, (msg) => {
       const gameTheme = msg as ThemeOptions
-      console.log('theme is', gameTheme)
+      setThemeOptions(gameTheme)
     })
-
   }
-}, [subsManager, setGameState])
+}, [subsManager, setGameState, setThemeOptions])
 
 // update user flags from vCard categories
 useEffect(() => {
@@ -252,14 +232,27 @@ useEffect(() => {
     if ((vCard !== null)) {
       // start off with categories
       const records = vCard.records
-      const categoryRecords = records?.filter((record) => record.type === 'categories')
-      const categories = categoryRecords?.map((record) => record.value[0])
-      if (categories) {
-        setIsGameControl(categories.includes('GameControl'))
-        setIsFeedbackObserver(categories.includes('FeedbackObserver'))
+      const categoryRecords = records?.find((record) => record.type === 'categories')
+      if (categoryRecords) {
+        const records = categoryRecords as XMPP.Stanzas.VCardTempCategories
+        const categories = records.value
+        if (categories) {
+          setIsGameControl(categories.includes(FLAG_IS_GAME_CONTROL))
+          setIsFeedbackObserver(categories.includes(FLAG_IS_FEEDBACK_OBSERVER))
+        }
+      }
+
+      // now the organisation (force)
+      const organizationRecords = records?.find((record) => record.type === 'organization')
+      if (organizationRecords) {
+        const org = organizationRecords as XMPP.Stanzas.VCardTempOrg
+        const orgName = org.value
+        if (orgName) {
+          setForceId(orgName)
+        }
       }
       
-      // now the 
+      // now the name
       if (vCard.fullName) {
         setProperName(vCard.fullName)
       }  
@@ -270,6 +263,16 @@ useEffect(() => {
   }
 }, [vCard])
 
+/** join my rooms */
+useEffect(() => {
+  if (forceId) {
+    console.log('registering force id node')
+    subsManager?.subscribeToNode(FORCE_NODE + forceId, (msg) => {
+      const forceDetails = msg as ForceDetails
+      setForce(forceDetails)
+    })  
+  }
+}, [forceId, subsManager, setForce])
 
 /** join my rooms */
 useEffect(() => {
@@ -289,7 +292,7 @@ useEffect(() => {
             }
           }
         }
-        xClient.joinRoom(room.jid, resourceName, roomPresence).catch((err) => {
+        xClient.joinRoom(room.jid, resourceName, roomPresence).catch((err: unknown) => {
           console.log('Failed to join room', room, err)
         })  
       }  
@@ -301,13 +304,14 @@ useEffect(() => {
 }, [myRooms, showHidden])
 
 const handleLogout = useCallback(() => {
+  // console.clear()
   // leave rooms
   // console.log('Leaving rooms', trimmedRooms.length)
     if (xClient && myRooms !== null) {
       const rooms = myRooms.map(room => xClient.leaveRoom(room.jid || 'unknown'))
       Promise.all(rooms).then(() => {
         return subsManager?.unsubscribeAll()
-        }).catch((err) => {
+        }).catch((err: unknown) => {
           console.log('trouble leaving rooms', err)
         }).finally(() => {
           xClient.disconnect()
@@ -332,7 +336,6 @@ const containerStyles:  React.CSSProperties = {
 }
 
 return ( <div style={containerStyles}>
-  <ThemeProvider theme={theme}>
   <MUCAllRooms rooms={trimmedRooms} newMessage={newMessage} />  
   <GameStatePanel logout={handleLogout} 
   sendMessage={sendMessage} isGameControl={isGameControl}
@@ -340,7 +343,6 @@ return ( <div style={containerStyles}>
   showHidden={showHidden} setShowHidden={setShowHidden}
   vCard={vCard} forceDetails={forceDetails} />
   <SimpleDialog dialog={dialog} setDialog={setDialog} dialogTitle={dialogTitle} />
-  </ThemeProvider>
 </div>
 )
 }

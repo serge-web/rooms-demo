@@ -11,9 +11,9 @@ import Groups2Icon from '@mui/icons-material/Groups2';
 import AdsClickIcon from '@mui/icons-material/AdsClick';
 import React from 'react';
 import Person3Icon from '@mui/icons-material/Person3';
-import { ADMIN_CHANNEL, FEEDBACK_CHANNEL, FLAG_IS_GAME_CONTROL, GAME_STATE_NODE, GAME_THEME_NODE } from './Constants';
+import { ADMIN_CHANNEL, FEEDBACK_CHANNEL, GAME_STATE_NODE, GAME_THEME_NODE } from './Constants';
 import { PlayerContext, PlayerContextInfo, RoomDetails } from './App';
-import { JSONItem } from 'stanza/protocol';
+import { JSONItem, PubsubSubscription, PubsubSubscriptions } from 'stanza/protocol';
 import { NS_JSON_0 } from 'stanza/Namespaces';
 import { createNodeIfNecessary } from './helpers/configNode';
 import { subscribeIfNecessary } from './helpers/subscribeIfNecessary';
@@ -31,9 +31,9 @@ export default interface GameStateProps {
   vCard: XMPP.Stanzas.VCardTemp | undefined | null
 }
 
-export const GameStatePanel: React.FC<GameStateProps> = ({ logout, sendMessage, showHidden, setShowHidden,  properName, isFeedbackObserver, newMessage, forceDetails, vCard
+export const GameStatePanel: React.FC<GameStateProps> = ({ logout, sendMessage, showHidden, setShowHidden,  properName, isFeedbackObserver, isGameControl, newMessage, forceDetails, vCard
  }: GameStateProps) => {
-  const {fullJid, domain, myRooms, jid, xClient, gameState, pubJid, playerFlags, playerForce} = useContext(PlayerContext) as PlayerContextInfo
+  const {fullJid, domain, myRooms, jid, xClient, gameState, pubJid} = useContext(PlayerContext) as PlayerContextInfo
 
   const [adminDetails, setAdminDetails] = useState<RoomDetails | undefined>(undefined);
   const [feedbackDetails, setFeedbackDetails] = useState<RoomDetails | undefined>(undefined);
@@ -43,8 +43,6 @@ export const GameStatePanel: React.FC<GameStateProps> = ({ logout, sendMessage, 
   const [showFeedback, setShowFeedback] = useState<boolean>(false);
   const [userIcon, setUserIcon] = useState<ReactElement>(<></>) 
   const [objectivesIcon, setObjectivesIcon] = useState<ReactElement>(<></>)
-
-  const isGameControl = playerFlags.includes(FLAG_IS_GAME_CONTROL)
 
   useEffect(() => {
     if (gameState) {
@@ -91,37 +89,39 @@ export const GameStatePanel: React.FC<GameStateProps> = ({ logout, sendMessage, 
   }, [vCard, forceDetails])
 
   const stepForward = () => {
-    console.clear()
+    if (xClient) {
+      console.clear()
 
-    let newState: GameState
-    if(gameState){
-      const time = new Date(gameState.gameTime)
-      // increment time by one hour
-      time.setHours(time.getHours() + 1)
-      newState = {...gameState,
-        gameTime:  time.toISOString(), 
-        gameTurn: gameState.gameTurn + 1}
-
-    } else {
-      newState = {
-        type: 'GameState',
-        gameTurn: 1,
-        gameTime: '2024-08-20T14:00:00Z',
-        gameTimeStep: '1 hour'
+      let newState: GameState
+      if(gameState){
+        const time = new Date(gameState.gameTime)
+        // increment time by one hour
+        time.setHours(time.getHours() + 1)
+        newState = {...gameState,
+          gameTime:  time.toISOString(), 
+          gameTurn: gameState.gameTurn + 1}
+  
+      } else {
+        newState = {
+          type: 'GameState',
+          gameTurn: 1,
+          gameTime: '2024-08-20T14:00:00Z',
+          gameTimeStep: '1 hour'
+        }
       }
-    }
-        
-    const stateJSON = JSON.stringify(newState)
-    const jsonItem: JSONItem = { 
-      itemType: NS_JSON_0,
-      json: stateJSON
-    }
-
-    createNodeIfNecessary(xClient, pubJid, GAME_STATE_NODE, 'Game state').then(() => {
-      xClient.publish(jid, GAME_STATE_NODE, jsonItem).catch((err) => {
-        console.error('Error publishing game state', err, !!subscribeIfNecessary)
+          
+      const stateJSON = JSON.stringify(newState)
+      const jsonItem: JSONItem = { 
+        itemType: NS_JSON_0,
+        json: stateJSON
+      }
+  
+      createNodeIfNecessary(xClient, pubJid, GAME_STATE_NODE, 'Game state').then(() => {
+        xClient.publish(jid, GAME_STATE_NODE, jsonItem).catch((err: unknown) => {
+          console.error('Error publishing game state', err, !!subscribeIfNecessary)
+        })
       })
-    })
+    }
   }
 
 
@@ -153,10 +153,36 @@ export const GameStatePanel: React.FC<GameStateProps> = ({ logout, sendMessage, 
     minHeight: '40px'
   }
 
+  const doUnsubscribe = (): void => {
+    console.clear()
+    if (!xClient) 
+      return
 
-  const tmpSendMessage = () => {
+    // clear subscriptions
+    const opts = {
+    }
+    xClient.getSubscriptions(pubJid, opts).then((subs:PubsubSubscriptions) => {
+      console.log('got subscriptions', subs)
+      const doUnsub = (xClient && subs.items && subs.items.length) ? subs.items.map((item: PubsubSubscription) => {
+        const opts: XMPP.PubsubUnsubscribeOptions = {
+          subid: (item as PubsubSubscription).subid as string,
+          node: item.node as string
+        }
+        return xClient.unsubscribeFromNode(pubJid, opts)
+      }) : []
+      Promise.all(doUnsub).then((res) => {
+        console.log('unsubscribed', res)
+      }).catch((err: unknown) => {
+        console.error('Error unsubscribing', err)
+      })
+    })
+  }
+
+  const tmpSendMessage = (): void => {
     console.log('', !!GAME_THEME_NODE, !!GAME_STATE_NODE)
     console.clear()
+
+
     // xClient.getDefaultNodeConfig(pubJid || '').then((items) => {
     //   console.log('Got disco', items, jid)   
     //  })
@@ -164,33 +190,26 @@ export const GameStatePanel: React.FC<GameStateProps> = ({ logout, sendMessage, 
     // console.log('about to get item', jid, GAME_STATE_NODE)
     // xClient.getNodeAffiliations(jid, GAME_STATE_NODE).then((item) => {
     //   console.log('got item', item)
-    // }).catch((err) => {
+    // }).catch((err: unknown) => {
     //   console.error('Error getting game state', err)
     // })
 
-    xClient.getVCard(jid).then((vCard) => {
-      console.log('Got vCard', vCard)
-      if (!vCard.records || vCard.records.length === 0) {
-        // const cats: XMPP.Stanzas.VCardTempCategories = {
-        //   type: 'categories',
-        //   value: [FLAG_IS_GAME_CONTROL]
-        // }
-        const organization: XMPP.Stanzas.VCardTempOrg = {
-          type: 'organization',
-          value: 'blue'
-        }
-        const vc: XMPP.Stanzas.VCardTemp = {
-          records: [organization]
-        }
-        xClient.publishVCard(vc).then((res) => {
-          console.log('Set vCard', res)
-        })
-      }
-    }).catch((err) => {
-      console.error('Error getting vCard', err)
-    }).finally(() => {
-      console.log('finally')
-    })
+    // xClient.getVCard(jid).then((vCard) => {
+    //   console.log('Got vCard', vCard)
+    //   // if (vCard.records) {
+    //   //   const categories = vCard.records.find((record) => record.type === 'categories')
+    //   //   if (categories) {
+    //   //     categories.value.push(FLAG_IS_FEEDBACK_OBSERVER)
+    //   //   }
+    //   //   xClient.publishVCard(vCard).then((res) => {
+    //   //     console.log('Set vCard', res)
+    //   //   })
+    //   // }
+    // }).catch((err: unknown) => {
+    //   console.error('Error getting vCard', err)
+    // }).finally(() => {
+    //   console.log('finally')
+    // })
 
     // xClient.getDefaultSubscriptionOptions(pubJid).then((items) => {
     //   console.log('Got disco', items, jid, !!subscribeIfNecessary)
@@ -205,20 +224,20 @@ export const GameStatePanel: React.FC<GameStateProps> = ({ logout, sendMessage, 
     //   console.log('about to get items')
     //   xClient.getNodeSubscribers(pubJid, GAME_STATE_NODE).then((subscribers) => {
     //     console.log('subscribers', subscribers)
-    //   }).catch((err) => {
+    //   }).catch((err: unknown) => {
     //     console.error('Error getting game state', err)
     //   })
 
-      // xClient.getItems(pubJid, GAME_STATE_NODE).then((item) => {
-      //   console.log('got items', item)
-      // }).catch((err) => {
-      //   console.error('Error getting game state', err)
-      // })
+      xClient.getItems(pubJid, GAME_STATE_NODE).then((item) => {
+        console.log('got items', item)
+      }).catch((err: unknown) => {
+        console.error('Error getting game state', err)
+      })
     // })
 
       // xClient.subscribeToNode(pubJid, GAME_STATE_NODE).then((res) => { 
       //   console.log('Subscribed to game state', res)
-      // }).catch((err) => {
+      // }).catch((err: unknown) => {
       //   console.log('Failed to subscribe to game state', err)
       // })
 
@@ -234,7 +253,7 @@ export const GameStatePanel: React.FC<GameStateProps> = ({ logout, sendMessage, 
     //   json: stateJSON
     // }
     // console.log('about to publish game state', jid, GAME_STATE_NODE, jsonItem, pubJid)
-    // xClient.publish(pubJid, GAME_STATE_NODE, jsonItem).catch((err) => {
+    // xClient.publish(pubJid, GAME_STATE_NODE, jsonItem).catch((err: unknown) => {
     //   console.error('Error publishing game state 2', err)
     // })
 
@@ -251,33 +270,42 @@ export const GameStatePanel: React.FC<GameStateProps> = ({ logout, sendMessage, 
     //     }
     //   }
     // }
+    // const blueForce: ForceDetails = {
+    //   type: FORCE_DETAILS,
+    //   id: 'blue',
+    //   name: 'Blue Force',
+    //   color: '#0000ff',
+    //   objective: 'Capture the flag'
+    // }
 
-    // const themeJSON = JSON.stringify(theme)
+    // const themeJSON = JSON.stringify(blueForce)
     // const jsonItem: JSONItem = { 
     //   itemType: NS_JSON_0,
     //   json: themeJSON
     // }
-    // console.log('about to publish theme state', jid, GAME_STATE_NODE, jsonItem, pubJid)
-    // xClient.publish(pubJid, GAME_STATE_NODE, jsonItem).catch((err) => {
-    //   console.error('Error publishing game theme 2', err)
-    // })
-    // xClient.publish(pubJid, GAME_THEME_NODE, jsonItem).catch((err) => {
+    // console.log('about to publish theme state', jid, FORCE_NODE + 'blue', jsonItem, pubJid)
+    // xClient.publish(pubJid, FORCE_NODE + 'blue', jsonItem).catch((err: unknown) => {
     //   console.error('Error publishing game theme 2', err)
     // })
 
-   //  createNodeIfNecessary(xClient, pubJid, GAME_STATE_NODE, 'Game state')
+    // xClient.publish(pubJid, GAME_THEME_NODE, jsonItem).catch((err: unknown) => {
+    //   console.error('Error publishing game theme 2', err)
+    // })
+
+   
+    // createNodeIfNecessary(xClient, pubJid, FORCE_NODE + 'blue', 'Blue force')
 
 
 
     // xClient.getNodeConfig(pubJid, GAME_STATE_NODE).then((res) => {
     //   console.log('node config', res)
-    // }).catch((err) => {
+    // }).catch((err: unknown) => {
     //   console.error('Error creating game state 2', err)
     // })
 
     // xClient.deleteNode(pubJid, GAME_STATE_NODE).then((res) => {
     //   console.log('node deleted', res)
-    // }).catch((err) => {
+    // }).catch((err: unknown) => {
     //   console.error('Error deleting game state 2', err)
     // })
 
@@ -285,21 +313,20 @@ export const GameStatePanel: React.FC<GameStateProps> = ({ logout, sendMessage, 
     // const affiliations: PubsubAffiliation[] = [{jid: jid, affiliation: 'owner'}, {jid: 'red-co@localhost', affiliation: 'publisher'}]
     // xClient.updateNodeAffiliations(jid, GAME_STATE_NODE, affiliations).then((res) => {
     //   console.log('Updated affiliations', res)
-    // }).catch((err) => {
+    // }).catch((err: unknown) => {
     //   console.error('Error updating affiliations', err)
     // })
-
-
   }
-
-   
+  
   return (
     <Card className='out-of-game-feed'>
-      <CardHeader title={<>{userIcon}<Typography component={'span'}>{properName || fullJid.split('@')[0]}{playerForce && ' - ' + playerForce}</Typography>&nbsp;{objectivesIcon}</>} subheader={'T' + gameState?.gameTurn + ' ' + gameTime} />
+      <CardHeader title={<>{userIcon}<Typography component={'span'}>{properName || fullJid.split('@')[0]}
+        {vCard && vCard.fullName && (' - ' + vCard.fullName)}</Typography>&nbsp;{objectivesIcon}</>} subheader={'T' + gameState?.gameTurn + ' ' + gameTime} />
       <ButtonGroup orientation='horizontal'>
       <Button style={{marginRight:'10px'}}  variant='contained' onClick={() => logout()}>Logout</Button>
       <Button variant='contained' onClick={() => setShowFeedback(true)}>Feedback</Button>
-      <Button variant='contained' onClick={() => tmpSendMessage()}>[debug]</Button>
+      <Button variant='contained' onClick={() => { tmpSendMessage() }}>[debug]]</Button>
+      <Button variant='contained' onClick={() => { doUnsubscribe() }}>[unsub]]</Button>
       </ButtonGroup>
       { isGameControl && <ButtonGroup style={{marginTop:'10px'}}>
         <Button style={{marginRight:'10px'}} variant='contained' onClick={() => stepForward()}>Step</Button>

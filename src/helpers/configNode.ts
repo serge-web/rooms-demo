@@ -7,7 +7,7 @@ export const createNodeIfNecessary = async (xClient: XMPP.Agent, pubJid: string,
   xClient.getNodeConfig(pubJid, node).then(() => {
     // success
     console.log('got config for node', node)
-  }).catch((err) => {
+  }).catch((err: unknown) => {
     if (err.error.condition === 'item-not-found') {
       console.log('creating node', node)
       // create node
@@ -25,7 +25,7 @@ export const createNodeIfNecessary = async (xClient: XMPP.Agent, pubJid: string,
         }
         xClient.configureNode(pubJid, node, nodeConfig).then(() => {
           // success
-        }).catch((err) => {
+        }).catch((err: unknown) => {
           console.error('Error creating/configuring node', err)
       })
     })}})

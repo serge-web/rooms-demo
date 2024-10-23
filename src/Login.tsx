@@ -6,11 +6,15 @@ import { WelcomePage } from './WelcomePage';
 import { SimpleDialog } from './SimpleDialog';
 import { PlayerContextInfo, RoomDetails } from './App';
 import { useState } from 'react';
+import { GAME_STATE_NODE, GAME_THEME_NODE } from './Constants';
+import { ThemeOptions } from '@mui/material';
+import { clearSubscriptions } from './helpers/clearSubscriptions';
 
 const wargames = ['localhost'];
 
 export interface LoginProps {
   setPlayerState: (state: PlayerContextInfo | null) => void
+  setThemeOptions: (theme: ThemeOptions) => void
   welcomeTitle?: string
   welcomeMsg?: string
 }
@@ -18,7 +22,7 @@ export interface LoginProps {
 export const Login: React.FC<LoginProps> = ({ setPlayerState, welcomeTitle, welcomeMsg }: LoginProps) => {
   const [dialog, setDialog] = useState<string | null>(null);
   const [dialogTitle, setDialogTitle] = useState<string>('');
-
+  
   const handleLogin = (selectedWargame: string, username: string, password: string) => {
     console.log('Logging into ', selectedWargame,' with:', username, password);
     const jid = username + '@' + selectedWargame;
@@ -35,11 +39,11 @@ export const Login: React.FC<LoginProps> = ({ setPlayerState, welcomeTitle, welc
       }
     }
     const client = XMPP.createClient(config);
-
+    
     // client.on('raw:*', (direction, data) => {
     //     console.log('== ', new Date().toISOString(), direction, data)
     //   })
-
+    
     client.on('session:started', () => {
       console.log('Logged in. Setting xClient')
       const jid = username + '@' + selectedWargame;
@@ -61,8 +65,13 @@ export const Login: React.FC<LoginProps> = ({ setPlayerState, welcomeTitle, welc
               context.pubJid = jid
             }
           })
-        })
-      .then(() => {
+        }).then(() => {
+          // clear any existing theme or game subscriptions
+          return clearSubscriptions(client, context.pubJid || '', GAME_THEME_NODE)
+        }).then(() => {
+          // clear any existing theme or game subscriptions
+          return clearSubscriptions(client, context.pubJid || '', GAME_STATE_NODE)
+        }).then(() => {
           // get room configs
           if (context.mucJid) {
             client.getDiscoItems(context.mucJid).then((rooms) => {
@@ -73,7 +82,7 @@ export const Login: React.FC<LoginProps> = ({ setPlayerState, welcomeTitle, welc
               const roomNames = rooms.map((room) => room.name || '')
               const queryRooms = rooms.map((room) => client.getDiscoInfo(room.jid || ''))
               Promise.all(queryRooms).then((roomConfigs) => {
-
+                
                 // collate room names and descriptions
                 context.myRooms = roomConfigs.map((config, index):RoomDetails => {
                   const firstExtension = config?.extensions[0]
@@ -84,21 +93,7 @@ export const Login: React.FC<LoginProps> = ({ setPlayerState, welcomeTitle, welc
                     description: desc as string
                   }
                 })
-
-                client.getVCard(jid).then((vCard) => {
-                  if(vCard.records) {
-                    // category records, for the player flags
-                    const cats = vCard.records.find((record) => record.type === 'categories') as XMPP.Stanzas.VCardTempCategories
-                    if (cats) {
-                      context.playerFlags = cats.value
-                    }
-                    // organisation, for the force
-                    const org = vCard.records.find( (record) => record.type === 'organization') as XMPP.Stanzas.VCardTempOrg
-                    if (org) {
-                      context.playerForce = org.value  
-                    }
-                  }
-                }).then(() => {
+              }).then(() => {
                   setPlayerState({
                     domain: selectedWargame,
                     fullJid: jid + '/' + username,
@@ -108,52 +103,46 @@ export const Login: React.FC<LoginProps> = ({ setPlayerState, welcomeTitle, welc
                     pubJid: context.pubJid || '',
                     mucJid: context.mucJid || '',
                     myRooms: context.myRooms || [],
-                    playerFlags: context.playerFlags || [],
-                    playerForce: context.playerForce || '',
                     gameState: null})
-                  })  
-              })
-          })}})
-        })
+                  }) 
+                })
+              }
+            })
+          })
+        })       
+      
+      client.on('auth:failed', () => {
+        setDialogTitle('Login')
+        setDialog('Authorisation failed')
       })
       
-
-    client.on('auth:failed', () => {
-      setDialogTitle('Login')
-      setDialog('Authorisation failed')
-    })
-
-    client.on('presence', () => {
-      // console.log('presence!!!', presence)
-    })
-
-    client.on('bosh:terminate', (direction) => {
-      // eslint-disable-next-line  @typescript-eslint/no-explicit-any
-      const safeObj: any = direction
-      if (safeObj.condition && safeObj.condition === XMPP.Constants.StreamErrorCondition.HostUnknown) {
-        setDialogTitle('Login')
-        setDialog('Wargame not found')
-      }
-    })
-  
-    client.connect();
-
-    client.off('bosh:terminate', (direction) => {
-      console.log('ignoring terminate', direction)
-    })
-
-    console.log('connect sent:', config.jid)
-  }
-
-
-  return ( 
-    <>
-    <div id='login-container'>
+      client.on('bosh:terminate', (direction) => {
+        // eslint-disable-next-line  @typescript-eslint/no-explicit-any
+        const safeObj: any = direction
+        if (safeObj.condition && safeObj.condition === XMPP.Constants.StreamErrorCondition.HostUnknown) {
+          setDialogTitle('Login')
+          setDialog('Wargame not found')
+        }
+      })
+      
+      client.connect();
+      
+      client.off('bosh:terminate', (direction) => {
+        console.log('ignoring terminate', direction)
+      })
+      
+      console.log('connect sent:', config.jid)
+    }
+    
+    
+    return ( 
+      <>
+      <div id='login-container'>
       <WelcomePage welcomeTitle={welcomeTitle} welcomeMsg={welcomeMsg} wargames={wargames} handleLogin={handleLogin} />
-    </div> 
-    <SimpleDialog dialog={dialog} setDialog={setDialog} dialogTitle={dialogTitle} />
-    </>
-  )
-}
-
-export default Login;
+      </div> 
+      <SimpleDialog dialog={dialog} setDialog={setDialog} dialogTitle={dialogTitle} />
+      </>
+    )
+  }
+  
+  export default Login;
