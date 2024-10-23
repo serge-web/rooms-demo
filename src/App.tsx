@@ -22,6 +22,8 @@ export interface PlayerContextInfo {
   mucJid: string
   myRooms: RoomDetails[]
   gameState: GameState | null
+  playerFlags: string[]
+  playerForce: string
 }
 
 
