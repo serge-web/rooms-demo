@@ -115,7 +115,7 @@ export const Game: React.FC<GameProps> = ({ setPlayerState, setGameState, setThe
 
       // listen for incoming messages
       xClient.on('groupchat', (msg: XMPP.Stanzas.ReceivedMessage) => {
-        console.log('EV: group chat', msg)
+        // console.log('EV: group chat', msg)
         const message: XMPP.Stanzas.Message = msg as XMPP.Stanzas.Message
         // wrap message in a Forward stanza, so it has a delay
         const forward: XMPP.Stanzas.Forward = {
@@ -143,8 +143,8 @@ export const Game: React.FC<GameProps> = ({ setPlayerState, setGameState, setThe
         console.log('new MUC other', muc)
       });
       
-      xClient.on('muc:join', (muc) => {
-        console.log('new MUC join', muc)
+      xClient.on('muc:join', () => {
+        // console.log('new MUC join', muc)
       });
 
       xClient.on('muc:topic', () => {
@@ -301,7 +301,7 @@ useEffect(() => {
 }, [myRooms, showHidden])
 
 const handleLogout = useCallback(() => {
-  // console.clear()
+  console.clear()
   // leave rooms
   // console.log('Leaving rooms', trimmedRooms.length)
     if (xClient && myRooms !== null) {

@@ -1,7 +1,7 @@
 import * as XMPP from 'stanza';
 
 export const createNodeIfNecessary = async (xClient: XMPP.Agent, pubJid: string, node: string,
-  description: string
+  description: string, allVersions: boolean = false
 ) => {
   // check if node exists
   xClient.getNodeConfig(pubJid, node).then(() => {
@@ -19,14 +19,19 @@ export const createNodeIfNecessary = async (xClient: XMPP.Agent, pubJid: string,
           fields:[
             {name: 'pubsub#description', value: description},
             {name: 'pubsub#type', value: 'json'},
-            {name: 'pubsub#persist_items', value: true},
-            {name: 'pubsub#max_items', value: 'max'}
+            {name: 'pubsub#persist_items', value: true}
           ],
           type: 'submit',
           title: 'Node configuration'
         }
+        if (allVersions && nodeConfig.fields) {
+          // indicate we want to store all previous versions
+          nodeConfig.fields.push({name: 'pubsub#max_items', value: '1000'})
+        }
+        console.log('about to config node', nodeConfig)
         xClient.configureNode(pubJid, node, nodeConfig).then(() => {
           // success
+          console.log('new node configured')
         }).catch((err: unknown) => {
           console.error('Error creating/configuring node', err)
       })

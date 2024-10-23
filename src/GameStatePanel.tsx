@@ -111,7 +111,7 @@ export const GameStatePanel: React.FC<GameStateProps> = ({ logout, sendMessage, 
         json: stateJSON
       }
   
-      createNodeIfNecessary(xClient, pubJid, GAME_STATE_NODE, 'Game state').then(() => {
+      createNodeIfNecessary(xClient, pubJid, GAME_STATE_NODE, 'Game state', true).then(() => {
         xClient.publish(jid, GAME_STATE_NODE, jsonItem).catch((err: unknown) => {
           console.error('Error publishing game state', err, !!subscribeIfNecessary)
         })
