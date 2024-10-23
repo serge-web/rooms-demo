@@ -155,6 +155,9 @@ export const GameStatePanel: React.FC<GameStateProps> = ({ logout, sendMessage, 
 
   const doUnsubscribe = () => {
     console.clear()
+    if (!xClient) 
+      return
+    
     // clear subscriptions
     const opts = {
     }

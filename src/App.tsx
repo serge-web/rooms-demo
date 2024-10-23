@@ -65,7 +65,7 @@ function App() {
     <ThemeProvider theme={theme || baseTheme}>
       { playerState && <PlayerContext.Provider value={playerState}>
               <Game setPlayerState={setPlayerState} setGameState={setGameState} 
-                parentTheme={theme ?? baseTheme} setThemeOptions={setThemeOptions}  />
+                setThemeOptions={setThemeOptions}  />
             </PlayerContext.Provider> }
       { !playerState && <Login welcomeTitle={welcomeTitle} setThemeOptions={setThemeOptions} setPlayerState={setPlayerState}
       welcomeMsg={welcomeMessage} /> }    

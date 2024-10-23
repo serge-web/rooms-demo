@@ -7,7 +7,7 @@ import { FLAG_IS_FEEDBACK_OBSERVER, FLAG_IS_GAME_CONTROL, FORCE_DETAILS, GAME_ST
 import { SimpleDialog } from './SimpleDialog';
 import { MUCAllRooms } from './MUCAllRooms';
 import { PlayerContext, PlayerContextInfo, RoomDetails } from './App';
-import { ThemeOptions, ThemeProvider } from '@mui/material';
+import { ThemeOptions } from '@mui/material';
 import { SubsManager } from './helpers/SubscriptionManager';
 
 export interface GamePresence {
@@ -44,7 +44,6 @@ export interface GameProps {
   setPlayerState: (state: null) => void
   setGameState: (state: GameState) => void
   setThemeOptions: (theme: ThemeOptions) => void
-  parentTheme: ThemeOptions
 }
 
 const onlyLastForce = (forces: ForceDetails[]): ForceDetails[] => {
@@ -57,7 +56,7 @@ const onlyLastForce = (forces: ForceDetails[]): ForceDetails[] => {
   })
 }
 
-export const Game: React.FC<GameProps> = ({ setPlayerState, setGameState, parentTheme, setThemeOptions }: GameProps) => {
+export const Game: React.FC<GameProps> = ({ setPlayerState, setGameState, setThemeOptions }: GameProps) => {
   const {jid, resourceName, xClient, myRooms, pubJid
    } = useContext(PlayerContext) as PlayerContextInfo
   const [trimmedRooms, setTrimmedRooms] = useState<RoomDetails[]>([]);
@@ -76,8 +75,6 @@ export const Game: React.FC<GameProps> = ({ setPlayerState, setGameState, parent
   const [dialogTitle, setDialogTitle] = useState<string>('');
   
   const [forceDetails] = useState<ForceDetails[]>([]);
-
-  const [theme] = useState<ThemeOptions>(parentTheme);
 
   const [subsManager, setSubsManager] = useState<SubsManager | null>(null)
 
@@ -335,7 +332,6 @@ const containerStyles:  React.CSSProperties = {
 }
 
 return ( <div style={containerStyles}>
-  <ThemeProvider theme={theme}>
   <MUCAllRooms rooms={trimmedRooms} newMessage={newMessage} />  
   <GameStatePanel logout={handleLogout} 
   sendMessage={sendMessage} isGameControl={isGameControl}
@@ -343,7 +339,6 @@ return ( <div style={containerStyles}>
   showHidden={showHidden} setShowHidden={setShowHidden}
   vCard={vCard} forceDetails={forceDetails} />
   <SimpleDialog dialog={dialog} setDialog={setDialog} dialogTitle={dialogTitle} />
-  </ThemeProvider>
 </div>
 )
 }
