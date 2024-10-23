@@ -151,10 +151,33 @@ export const GameStatePanel: React.FC<GameStateProps> = ({ logout, sendMessage, 
     minHeight: '40px'
   }
 
+  const doUnsubscribe = () => {
+    console.clear()
+    // clear subscriptions
+    const opts = {
+    }
+    xClient.getSubscriptions(pubJid, opts).then(subs => {
+      console.log('got subscriptions', subs)
+      const doUnsub = subs.items ? subs.items.map(item => {
+        const opts: XMPP.PubsubUnsubscribeOptions = {
+          subid: item.subid,
+          node: item.node
+        }
+        return xClient.unsubscribeFromNode(pubJid, opts)
+      }) : []
+      Promise.all(doUnsub).then((res) => {
+        console.log('unsubscribed', res)
+      }).catch((err) => {
+        console.error('Error unsubscribing', err)
+      })
+    })
+  }
 
   const tmpSendMessage = () => {
     console.log('', !!GAME_THEME_NODE, !!GAME_STATE_NODE)
     console.clear()
+
+
     // xClient.getDefaultNodeConfig(pubJid || '').then((items) => {
     //   console.log('Got disco', items, jid)   
     //  })
@@ -273,7 +296,8 @@ export const GameStatePanel: React.FC<GameStateProps> = ({ logout, sendMessage, 
       <ButtonGroup orientation='horizontal'>
       <Button style={{marginRight:'10px'}}  variant='contained' onClick={() => logout()}>Logout</Button>
       <Button variant='contained' onClick={() => setShowFeedback(true)}>Feedback</Button>
-      <Button variant='contained' onClick={() => tmpSendMessage()}>Update</Button>
+      <Button variant='contained' onClick={() => tmpSendMessage()}>[debug]]</Button>
+      <Button variant='contained' onClick={() => doUnsubscribe()}>[unsub]]</Button>
       </ButtonGroup>
       { isGameControl && <ButtonGroup style={{marginTop:'10px'}}>
         <Button style={{marginRight:'10px'}} variant='contained' onClick={() => stepForward()}>Step</Button>

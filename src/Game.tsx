@@ -43,34 +43,9 @@ export interface ThemeDetails extends GameData {
 export interface GameProps {
   setPlayerState: (state: null) => void
   setGameState: (state: GameState) => void
+  setThemeOptions: (theme: ThemeOptions) => void
   parentTheme: ThemeOptions
 }
-
-
-
-// const handleDataMessage =(message: XMPP.Stanzas.Message, setGameState, states: GameState[], forces: ForceDetails[], setTheme:{(theme: ThemeOptions): void}): void => {
-//   const theId = message.id
-//   if (theId && theId.startsWith('_')) {
-//     const json = JSON.parse(message.body || '{}') as GameData
-//     const msgType = json.type
-//     switch(msgType) {
-//       case GAME_STATE:{
-//         states.push(json as GameState)
-//         break
-//       }
-//       case FORCE_DETAILS:{
-//         forces.push(json as ForceDetails)
-//         break
-//       }
-//       case THEME:{
-//         // Update the theme
-//         console.log('display', json as ThemeDetails)
-//         setTheme(createTheme((json as ThemeDetails).data))
-//         break
-//       }
-//     }
-//   }
-// }
 
 const onlyLastForce = (forces: ForceDetails[]): ForceDetails[] => {
   const map: {[index: string]: ForceDetails} = {}
@@ -82,7 +57,7 @@ const onlyLastForce = (forces: ForceDetails[]): ForceDetails[] => {
   })
 }
 
-export const Game: React.FC<GameProps> = ({ setPlayerState, setGameState, parentTheme }: GameProps) => {
+export const Game: React.FC<GameProps> = ({ setPlayerState, setGameState, parentTheme, setThemeOptions }: GameProps) => {
   const {jid, resourceName, xClient, myRooms, pubJid
    } = useContext(PlayerContext) as PlayerContextInfo
   const [trimmedRooms, setTrimmedRooms] = useState<RoomDetails[]>([]);
@@ -198,7 +173,7 @@ export const Game: React.FC<GameProps> = ({ setPlayerState, setGameState, parent
       });
 
       xClient.on('muc:leave', (muc) => {
-        console.log('new MUC leave', muc)
+        // console.log('new MUC leave', muc)
       });
       
       xClient.on('muc:error', (muc) => {
@@ -240,7 +215,7 @@ useEffect(() => {
 
     subsManager.subscribeToNode(GAME_THEME_NODE, (msg) => {
       const gameTheme = msg as ThemeOptions
-      console.log('theme is', gameTheme)
+      setThemeOptions(gameTheme)
     })
 
   }
@@ -301,6 +276,7 @@ useEffect(() => {
 }, [myRooms, showHidden])
 
 const handleLogout = useCallback(() => {
+  console.clear()
   // leave rooms
   // console.log('Leaving rooms', trimmedRooms.length)
     if (xClient && myRooms !== null) {

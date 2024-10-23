@@ -18,7 +18,7 @@ export class SubsManager {
     this.pubJid = pubJid
     this.subs = []
     this.xClient.on('pubsub:published', (msg) => {
-      console.log('SubMgr: pubsub:published', msg)
+      console.log('SubMgr: pubsub:published', msg.pubsub.node, msg)
       const items = msg.pubsub.items
       if (items) {
         const node = items.node

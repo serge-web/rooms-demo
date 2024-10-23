@@ -1,10 +1,9 @@
-import { createContext, useCallback, useEffect, useRef, useState } from 'react';
+import { createContext, useCallback, useState } from 'react';
 import { Theme, ThemeOptions, ThemeProvider, createTheme } from "@mui/material/styles";
 import './App.css'
 import Login from './Login'
 import  { Game, GameState } from './Game'
 import * as XMPP from 'stanza';
-import { getAppConfig } from './helpers/getAppTheme';
 
 export interface RoomDetails {
   jid: string
@@ -24,19 +23,12 @@ export interface PlayerContextInfo {
   gameState: GameState | null
 }
 
-
-export interface AppConfiguration {
-  title: string
-  welcomeMessage: string
-  theme: ThemeOptions
-}
-
 export const PlayerContext = createContext<PlayerContextInfo | null>(null)
 
 const baseTheme: Theme = createTheme({
   palette: {
     primary: {
-      main: "#9a2461"
+      main: "#1a2461"
     },
     secondary: {
       main: "#494c7d"
@@ -48,15 +40,15 @@ const baseTheme: Theme = createTheme({
 function App() {
 
   const [playerState, setPlayerState] = useState<PlayerContextInfo | null>(null)
-  const [config, setConfig] = useState<AppConfiguration | null>(null)
   const [theme, setTheme] = useState<Theme | null>(null)
 
-  const clientDone = useRef<boolean>(false);
+  const welcomeTitle = 'War Rooms'
+  const welcomeMessage = 'Welcome to the wargame'
 
-  const storeConfig = (newConfig: AppConfiguration | null) => {
-    if (newConfig) {
-      setConfig(newConfig)
-    }
+
+  const setThemeOptions = (options: ThemeOptions) => {
+    const theme = createTheme(options)
+    setTheme(theme)
   }
 
   const setGameState = useCallback((gameState: GameState) => {
@@ -69,31 +61,13 @@ function App() {
     }
   }, [playerState]);
 
-
-  useEffect(() => {
-    if (config !== null) {
-      setTheme(createTheme(config.theme))
-    }
-  }, [config])
-
-  useEffect(() => {
-    if (!clientDone.current) {
-      {
-        clientDone.current = true
-        if (!playerState) {
-          getAppConfig(storeConfig)
-        }
-      }
-    }
-  }, [playerState])
-
   return (
     <ThemeProvider theme={theme || baseTheme}>
       { playerState &&  <PlayerContext.Provider value={playerState}>
-              <Game setPlayerState={setPlayerState} setGameState={setGameState}  parentTheme={theme || baseTheme}  />
+              <Game setPlayerState={setPlayerState} setGameState={setGameState}  parentTheme={theme || baseTheme} setThemeOptions={setThemeOptions}  />
             </PlayerContext.Provider> }
-      { !playerState && <Login welcomeTitle={config?.title} setPlayerState={setPlayerState}
-      welcomeMsg={config?.welcomeMessage} /> }    
+      { !playerState && <Login welcomeTitle={welcomeTitle} setThemeOptions={setThemeOptions} setPlayerState={setPlayerState}
+      welcomeMsg={welcomeMessage} /> }    
     </ThemeProvider>
   )  
 }
