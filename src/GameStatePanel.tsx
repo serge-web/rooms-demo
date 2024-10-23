@@ -165,7 +165,7 @@ export const GameStatePanel: React.FC<GameStateProps> = ({ logout, sendMessage, 
       console.log('got subscriptions', subs)
       const doUnsub = (xClient && subs.items && subs.items.length) ? subs.items.map((item: PubsubSubscription) => {
         const opts: XMPP.PubsubUnsubscribeOptions = {
-          subid: item.subid as string,
+          subid: (item as PubsubSubscription).subid as string,
           node: item.node as string
         }
         return xClient.unsubscribeFromNode(pubJid, opts)
