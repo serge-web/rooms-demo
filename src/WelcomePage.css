@@ -1,0 +1,13 @@
+#wargame-panel {
+  float: left;
+}
+
+#login-panel {
+  padding-top: 100px;
+  float: right;
+}
+
+ul {
+  height: 300px;
+  overflow-y: scroll;
+}

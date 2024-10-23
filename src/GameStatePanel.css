@@ -1,0 +1,16 @@
+.out-of-game-feed {
+  /* background: #fff; */
+  background-color: aqua;
+  color: #000;
+/*  max-width: 255px;*/
+
+  display: block;
+/*  overflow: hidden;
+  padding-left: 0;*/
+  
+ /* .flexlayout__layout {
+    display: flex;
+    flex-grow: 2;
+    position: relative;
+  } */
+}

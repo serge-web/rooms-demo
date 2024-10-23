@@ -1,2 +1,2 @@
-# rooms-demo
-Demonstrator for Serge via XMPP
+# war-rooms
+Distributed wargaming environment, based on XMPP protocol
