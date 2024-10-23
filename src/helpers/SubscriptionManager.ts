@@ -35,7 +35,7 @@ export class SubsManager {
     this.subs = []
     if (this.xClient) {
       this.xClient.on('pubsub:published', (msg: LocalPubsubPublish) => {
-        console.log('SubMgr: pubsub:published', msg.pubsub.items.node, msg)
+        console.log('%% PubSub updated doc:', msg.pubsub.items.node)
         const items = msg.pubsub.items
         if (items) {
           const node = items.node
@@ -72,12 +72,14 @@ export class SubsManager {
         // store the callback before we subscribe, since there's a good chance
         // we'll instantly get a time-late published document
         this.subs.push(sub)
+        console.log('about to subscribe to', node)
         this.xClient.subscribeToNode(this.pubJid, node).then((res) => {
-          console.log('successfully subscribed', res)
+          console.log('successfully subscribed', node)
           sub.subId = res.subid || 'unknown'
         }).catch((err: {error: StanzaError}) => {
           if (err.error.condition === StanzaErrorCondition.ItemNotFound) {
             console.warn('Node does not exist:', node, err)
+            // delete the stored subscription
             this.subs = this.subs.filter((item: NodeSubscription) => item.subId !== sub.subId)
           } else {
             console.error('Failed to subscribe to node:', node, err)
@@ -87,6 +89,7 @@ export class SubsManager {
     }
   }
   async unsubscribeAll(): Promise<XMPP.Stanzas.PubsubSubscription[]> {
+    console.log('subscriptions:', this.subs)
     const unsubs = this.xClient ? this.subs.map((sub) => {
       const options = {
         node: sub.node,

@@ -75,8 +75,6 @@ export const Game: React.FC<GameProps> = ({ setPlayerState, setGameState, setThe
   const [dialog, setDialog] = useState<string | null>(null);
   const [dialogTitle, setDialogTitle] = useState<string>('');
   
-  const [forceDetails] = useState<ForceDetails[]>([]);
-
   const [subsManager, setSubsManager] = useState<SubsManager | null>(null)
 
   // TODO: this flag prevents us setting up the client multiple times
@@ -117,7 +115,7 @@ export const Game: React.FC<GameProps> = ({ setPlayerState, setGameState, setThe
 
       // listen for incoming messages
       xClient.on('groupchat', (msg: XMPP.Stanzas.ReceivedMessage) => {
-        console.log('EV: group chat', msg)
+        // console.log('EV: group chat', msg)
         const message: XMPP.Stanzas.Message = msg as XMPP.Stanzas.Message
         // wrap message in a Forward stanza, so it has a delay
         const forward: XMPP.Stanzas.Forward = {
@@ -145,11 +143,11 @@ export const Game: React.FC<GameProps> = ({ setPlayerState, setGameState, setThe
         console.log('new MUC other', muc)
       });
       
-      xClient.on('muc:join', (muc) => {
-        console.log('new MUC join', muc)
+      xClient?.on('muc:join', () => {
+        // console.log('new MUC join', muc)
       });
 
-      xClient.on('muc:topic', () => {
+      xClient?.on('muc:topic', () => {
         // note: we ignore the room topic, we use the 
         // room-name from the room config details
         // console.log('new MUC topic', muc)
@@ -265,9 +263,8 @@ useEffect(() => {
 
 /** join my rooms */
 useEffect(() => {
-  if (forceId) {
-    console.log('registering force id node')
-    subsManager?.subscribeToNode(FORCE_NODE + forceId, (msg) => {
+  if (forceId && subsManager) {
+    subsManager.subscribeToNode(FORCE_NODE + forceId, (msg) => {
       const forceDetails = msg as ForceDetails
       setForce(forceDetails)
     })  
@@ -304,15 +301,14 @@ useEffect(() => {
 }, [myRooms, showHidden])
 
 const handleLogout = useCallback(() => {
-  // console.clear()
+  console.clear()
   // leave rooms
-  // console.log('Leaving rooms', trimmedRooms.length)
     if (xClient && myRooms !== null) {
       const rooms = myRooms.map(room => xClient.leaveRoom(room.jid || 'unknown'))
       Promise.all(rooms).then(() => {
         return subsManager?.unsubscribeAll()
-        }).catch((err: unknown) => {
-          console.log('trouble leaving rooms', err)
+        }).catch((err: {pubsub: {unsubscribe: { node: string}}}) => {
+          console.log('trouble unsubscribing from node', err.pubsub.unsubscribe.node, err)
         }).finally(() => {
           xClient.disconnect()
           setPlayerState(null)
@@ -341,7 +337,7 @@ return ( <div style={containerStyles}>
   sendMessage={sendMessage} isGameControl={isGameControl}
   properName={properName} isFeedbackObserver={isFeedbackObserver} newMessage={newMessage}
   showHidden={showHidden} setShowHidden={setShowHidden}
-  vCard={vCard} forceDetails={forceDetails} />
+  vCard={vCard} forceDetails={force} />
   <SimpleDialog dialog={dialog} setDialog={setDialog} dialogTitle={dialogTitle} />
 </div>
 )
