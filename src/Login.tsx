@@ -52,7 +52,7 @@ export const Login: React.FC<LoginProps> = ({ setPlayerState, welcomeTitle, welc
         const promises = services.items.map((item) => client.getDiscoInfo(item.jid))
         Promise.all(promises).then((capabilities) => {
           capabilities.forEach((capability, index) => {
-            console.log('capability', capability)
+            // console.log('capability', capability)
             const jid = serviceJids[index]
             if(capability.features.find((feature) => feature === 'http://jabber.org/protocol/muc')) { 
               context.mucJid = jid
@@ -85,17 +85,34 @@ export const Login: React.FC<LoginProps> = ({ setPlayerState, welcomeTitle, welc
                   }
                 })
 
-                setPlayerState({
-                  domain: selectedWargame,
-                  fullJid: jid + '/' + username,
-                  jid: jid,
-                  resourceName: username,
-                  xClient: client,
-                  pubJid: context.pubJid || '',
-                  mucJid: context.mucJid || '',
-                  myRooms: context.myRooms || [],
-                  gameState: null})
-                })  
+                client.getVCard(jid).then((vCard) => {
+                  if(vCard.records) {
+                    // category records, for the player flags
+                    const cats = vCard.records.find((record) => record.type === 'categories') as XMPP.Stanzas.VCardTempCategories
+                    if (cats) {
+                      context.playerFlags = cats.value
+                    }
+                    // organisation, for the force
+                    const org = vCard.records.find( (record) => record.type === 'organization') as XMPP.Stanzas.VCardTempOrg
+                    if (org) {
+                      context.playerForce = org.value  
+                    }
+                  }
+                }).then(() => {
+                  setPlayerState({
+                    domain: selectedWargame,
+                    fullJid: jid + '/' + username,
+                    jid: jid,
+                    resourceName: username,
+                    xClient: client,
+                    pubJid: context.pubJid || '',
+                    mucJid: context.mucJid || '',
+                    myRooms: context.myRooms || [],
+                    playerFlags: context.playerFlags || [],
+                    playerForce: context.playerForce || '',
+                    gameState: null})
+                  })  
+              })
           })}})
         })
       })
