@@ -3,7 +3,7 @@ import * as XMPP from 'stanza';
 import { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import './Login.css';
 import { GameStatePanel } from './GameStatePanel';
-import { FORCE_DETAILS, GAME_STATE, GAME_STATE_NODE, GAME_THEME_NODE, THEME } from './Constants'
+import { FLAG_IS_FEEDBACK_OBSERVER, FLAG_IS_GAME_CONTROL, FORCE_DETAILS, GAME_STATE, GAME_STATE_NODE, GAME_THEME_NODE, THEME } from './Constants'
 import { SimpleDialog } from './SimpleDialog';
 import { MUCAllRooms } from './MUCAllRooms';
 import { PlayerContext, PlayerContextInfo, RoomDetails } from './App';
@@ -69,6 +69,9 @@ export const Game: React.FC<GameProps> = ({ setPlayerState, setGameState, parent
   const [isFeedbackObserver, setIsFeedbackObserver] = useState<boolean>(false);
   const [properName, setProperName] = useState<string>('');
   
+  const [forceId, setForceId] = useState<string>('');
+  const [force, setForce] = useState<ForceDetails | null>(null);
+
   const [dialog, setDialog] = useState<string | null>(null);
   const [dialogTitle, setDialogTitle] = useState<string>('');
   
@@ -227,14 +230,27 @@ useEffect(() => {
     if ((vCard !== null)) {
       // start off with categories
       const records = vCard.records
-      const categoryRecords = records?.filter((record) => record.type === 'categories')
-      const categories = categoryRecords?.map((record) => record.value[0])
-      if (categories) {
-        setIsGameControl(categories.includes('GameControl'))
-        setIsFeedbackObserver(categories.includes('FeedbackObserver'))
+      const categoryRecords = records?.find((record) => record.type === 'categories')
+      if (categoryRecords) {
+        const records = categoryRecords as XMPP.Stanzas.VCardTempCategories
+        const categories = records.value
+        if (categories) {
+          setIsGameControl(categories.includes(FLAG_IS_GAME_CONTROL))
+          setIsFeedbackObserver(categories.includes(FLAG_IS_FEEDBACK_OBSERVER))
+        }
+      }
+
+      // now the organisation (force)
+      const organizationRecords = records?.find((record) => record.type === 'organization')
+      if (organizationRecords) {
+        const org = organizationRecords as XMPP.Stanzas.VCardTempOrg
+        const orgName = org.value
+        if (orgName) {
+          setForceId(orgName)
+        }
       }
       
-      // now the 
+      // now the name
       if (vCard.fullName) {
         setProperName(vCard.fullName)
       }  
@@ -245,6 +261,15 @@ useEffect(() => {
   }
 }, [vCard])
 
+/** join my rooms */
+useEffect(() => {
+  if (forceId) {
+    subsManager?.subscribeToNode(FORCE_DETAILS + '.' + forceId, (msg) => {
+      const forceDetails = msg as ForceDetails
+      setForce(forceDetails)
+    })  
+  }
+}, [forceId, subsManager, setForce])
 
 /** join my rooms */
 useEffect(() => {
@@ -274,6 +299,8 @@ useEffect(() => {
   }
   // eslint-disable-next-line react-hooks/exhaustive-deps
 }, [myRooms, showHidden])
+
+console.log('force', force)
 
 const handleLogout = useCallback(() => {
   console.clear()

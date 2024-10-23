@@ -13,3 +13,4 @@ export const GAME_THEME_NODE = 'node.theme'
 
 // player flags
 export const FLAG_IS_GAME_CONTROL = 'isGameControl'
+export const FLAG_IS_FEEDBACK_OBSERVER = 'isFeedbackObserver'

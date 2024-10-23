@@ -51,7 +51,11 @@ export class SubsManager {
       this.xClient.subscribeToNode(this.pubJid, node).then((res) => {
         sub.subId = res.subid || 'unknown'
       }).catch((err) => {
-        console.error('Failed to subscribe to node:', node, err)
+        if (err.error.condition === 'item-not-found') {
+          console.warn('Node does not exist:', node)
+        } else {
+          console.error('Failed to subscribe to node:', node, err)
+        }
       })  
     }
   }
