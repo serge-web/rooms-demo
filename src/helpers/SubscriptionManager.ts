@@ -1,11 +1,14 @@
 import * as XMPP from 'stanza';
 import { StanzaErrorCondition } from 'stanza/Constants';
 import { JSONItem, PubsubEventItems, PubsubItem, StanzaError } from 'stanza/protocol';
+import { clearSubscriptions } from './clearSubscriptions';
 
 
 export type SubsCallback<t> = (msg: t) => void
 
-declare interface LocalPubsubPublish {
+/* the interface isn't exported from stanza, so
+re-create it here */
+interface LocalPubsubPublish {
   pubsub: PubsubEventItems & {
       items: {
           node: string,
@@ -19,7 +22,9 @@ interface NodeSubscription {
   subId: string
   callback: SubsCallback<object>
 }
-
+/** class that handles subscriptions to pub-sub nodes, supporting callbacks
+ * for when those documents change
+ */
 export class SubsManager {
   xClient: XMPP.Agent
   pubJid: string
@@ -30,7 +35,7 @@ export class SubsManager {
     this.subs = []
     if (this.xClient) {
       this.xClient.on('pubsub:published', (msg: LocalPubsubPublish) => {
-        console.log('SubMgr: pubsub:published', msg.pubsub.node, msg)
+        console.log('SubMgr: pubsub:published', msg.pubsub.items.node, msg)
         const items = msg.pubsub.items
         if (items) {
           const node = items.node
@@ -53,29 +58,32 @@ export class SubsManager {
     if (!this.xClient)
       return
 
-    console.log('SUBSCRIBE TO 1', node)
-
     // check if already subscribed
     if (!this.subs.some((sub) => sub.node === node)) {
-      console.log('SUBSCRIBE TO 2', node)
-      const sub: NodeSubscription = {
-        node,
-        subId: 'pending',
-        callback
-      }
-      // store the callback before we subscribe, since there's a good chance
-      // we'll instantly get a time-late published document
-      this.subs.push(sub)
-      this.xClient.subscribeToNode(this.pubJid, node).then((res) => {
-        sub.subId = res.subid || 'unknown'
-      }).catch((err: {error: StanzaError}) => {
-        if (err.error.condition === StanzaErrorCondition.ItemNotFound) {
-          console.warn('Node does not exist:', node)
-          this.subs = this.subs.filter((item: NodeSubscription) => item.subId !== sub.subId)
-        } else {
-          console.error('Failed to subscribe to node:', node, err)
+
+      // clear any existing subscriptions
+      clearSubscriptions(this.xClient, this.pubJid, node).then(() => {
+        console.log('subscribing to', node)
+        const sub: NodeSubscription = {
+          node,
+          subId: 'pending',
+          callback
         }
-      })  
+        // store the callback before we subscribe, since there's a good chance
+        // we'll instantly get a time-late published document
+        this.subs.push(sub)
+        this.xClient.subscribeToNode(this.pubJid, node).then((res) => {
+          console.log('successfully subscribed', res)
+          sub.subId = res.subid || 'unknown'
+        }).catch((err: {error: StanzaError}) => {
+          if (err.error.condition === StanzaErrorCondition.ItemNotFound) {
+            console.warn('Node does not exist:', node, err)
+            this.subs = this.subs.filter((item: NodeSubscription) => item.subId !== sub.subId)
+          } else {
+            console.error('Failed to subscribe to node:', node, err)
+          }
+        })  
+      })
     }
   }
   async unsubscribeAll(): Promise<XMPP.Stanzas.PubsubSubscription[]> {

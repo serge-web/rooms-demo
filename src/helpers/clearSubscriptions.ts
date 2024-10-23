@@ -7,17 +7,21 @@ export const clearSubscriptions = async (xClient: Readonly<XMPP.Agent>, pubJid: 
   const opts = {
     node: node
   }
-  return xClient.getSubscriptions(pubJid, opts).then((subs: PubsubSubscriptions) => {
-    const unsubPromises = (subs && subs.items) ? subs.items.map((item: PubsubSubscription): Promise<PubsubSubscription> => {
-      console.log('Unsubscribing from', node, item)
-      const opts: XMPP.PubsubUnsubscribeOptions = {
-        subid: item.subid,
-        node: node
-      }
-      return xClient.unsubscribeFromNode(pubJid, opts)
-    }) : []
-    Promise.all(unsubPromises).catch((err: unknown) => {
-      console.error('Error unsubscribing', err)
-    })
+  return await xClient.getSubscriptions(pubJid, opts).then((subs: PubsubSubscriptions) => {
+    if (subs.items) {
+      console.log('Unsubscribing from', node, subs.items?.length, 'subscriptions', subs)
+      const unsubPromises = (subs && subs.items) ? subs.items.map((item: PubsubSubscription): void => {
+        const opts: XMPP.PubsubUnsubscribeOptions = {
+          subid: item.subid,
+          node: node
+        }
+        xClient.unsubscribeFromNode(pubJid, opts)
+      }) : []
+      Promise.all(unsubPromises).catch((err: unknown) => {
+        console.error('Error unsubscribing', err)
+      })  
+    }
+  }).catch((err: unknown) => {
+    console.error('trouble getting subscriptions', err)
   })
 }

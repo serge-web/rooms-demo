@@ -194,22 +194,22 @@ export const GameStatePanel: React.FC<GameStateProps> = ({ logout, sendMessage, 
     //   console.error('Error getting game state', err)
     // })
 
-    xClient.getVCard(jid).then((vCard) => {
-      console.log('Got vCard', vCard)
-      // if (vCard.records) {
-      //   const categories = vCard.records.find((record) => record.type === 'categories')
-      //   if (categories) {
-      //     categories.value.push(FLAG_IS_FEEDBACK_OBSERVER)
-      //   }
-      //   xClient.publishVCard(vCard).then((res) => {
-      //     console.log('Set vCard', res)
-      //   })
-      // }
-    }).catch((err: unknown) => {
-      console.error('Error getting vCard', err)
-    }).finally(() => {
-      console.log('finally')
-    })
+    // xClient.getVCard(jid).then((vCard) => {
+    //   console.log('Got vCard', vCard)
+    //   // if (vCard.records) {
+    //   //   const categories = vCard.records.find((record) => record.type === 'categories')
+    //   //   if (categories) {
+    //   //     categories.value.push(FLAG_IS_FEEDBACK_OBSERVER)
+    //   //   }
+    //   //   xClient.publishVCard(vCard).then((res) => {
+    //   //     console.log('Set vCard', res)
+    //   //   })
+    //   // }
+    // }).catch((err: unknown) => {
+    //   console.error('Error getting vCard', err)
+    // }).finally(() => {
+    //   console.log('finally')
+    // })
 
     // xClient.getDefaultSubscriptionOptions(pubJid).then((items) => {
     //   console.log('Got disco', items, jid, !!subscribeIfNecessary)
@@ -228,11 +228,11 @@ export const GameStatePanel: React.FC<GameStateProps> = ({ logout, sendMessage, 
     //     console.error('Error getting game state', err)
     //   })
 
-      // xClient.getItems(pubJid, GAME_STATE_NODE).then((item) => {
-      //   console.log('got items', item)
-      // }).catch((err: unknown) => {
-      //   console.error('Error getting game state', err)
-      // })
+      xClient.getItems(pubJid, GAME_STATE_NODE).then((item) => {
+        console.log('got items', item)
+      }).catch((err: unknown) => {
+        console.error('Error getting game state', err)
+      })
     // })
 
       // xClient.subscribeToNode(pubJid, GAME_STATE_NODE).then((res) => { 
@@ -270,21 +270,30 @@ export const GameStatePanel: React.FC<GameStateProps> = ({ logout, sendMessage, 
     //     }
     //   }
     // }
+    // const blueForce: ForceDetails = {
+    //   type: FORCE_DETAILS,
+    //   id: 'blue',
+    //   name: 'Blue Force',
+    //   color: '#0000ff',
+    //   objective: 'Capture the flag'
+    // }
 
-    // const themeJSON = JSON.stringify(theme)
+    // const themeJSON = JSON.stringify(blueForce)
     // const jsonItem: JSONItem = { 
     //   itemType: NS_JSON_0,
     //   json: themeJSON
     // }
-    // console.log('about to publish theme state', jid, GAME_STATE_NODE, jsonItem, pubJid)
-    // xClient.publish(pubJid, GAME_STATE_NODE, jsonItem).catch((err: unknown) => {
+    // console.log('about to publish theme state', jid, FORCE_NODE + 'blue', jsonItem, pubJid)
+    // xClient.publish(pubJid, FORCE_NODE + 'blue', jsonItem).catch((err: unknown) => {
     //   console.error('Error publishing game theme 2', err)
     // })
+
     // xClient.publish(pubJid, GAME_THEME_NODE, jsonItem).catch((err: unknown) => {
     //   console.error('Error publishing game theme 2', err)
     // })
 
-   //  createNodeIfNecessary(xClient, pubJid, GAME_STATE_NODE, 'Game state')
+   
+    // createNodeIfNecessary(xClient, pubJid, FORCE_NODE + 'blue', 'Blue force')
 
 
 
@@ -307,14 +316,12 @@ export const GameStatePanel: React.FC<GameStateProps> = ({ logout, sendMessage, 
     // }).catch((err: unknown) => {
     //   console.error('Error updating affiliations', err)
     // })
-
-
   }
-
-   
+  
   return (
     <Card className='out-of-game-feed'>
-      <CardHeader title={<>{userIcon}<Typography component={'span'}>{properName || fullJid.split('@')[0]}</Typography>&nbsp;{objectivesIcon}</>} subheader={'T' + gameState?.gameTurn + ' ' + gameTime} />
+      <CardHeader title={<>{userIcon}<Typography component={'span'}>{properName || fullJid.split('@')[0]}
+        {vCard && vCard.fullName && (' - ' + vCard.fullName)}</Typography>&nbsp;{objectivesIcon}</>} subheader={'T' + gameState?.gameTurn + ' ' + gameTime} />
       <ButtonGroup orientation='horizontal'>
       <Button style={{marginRight:'10px'}}  variant='contained' onClick={() => logout()}>Logout</Button>
       <Button variant='contained' onClick={() => setShowFeedback(true)}>Feedback</Button>

@@ -9,6 +9,7 @@ import { MUCAllRooms } from './MUCAllRooms';
 import { PlayerContext, PlayerContextInfo, RoomDetails } from './App';
 import { ThemeOptions } from '@mui/material';
 import { SubsManager } from './helpers/SubscriptionManager';
+import { VCardTemp } from 'stanza/protocol';
 
 export interface GamePresence {
   jid: string
@@ -179,14 +180,6 @@ export const Game: React.FC<GameProps> = ({ setPlayerState, setGameState, setThe
       xClient.on('muc:error', (muc) => {
         console.log('new MUC error', muc)
       });
-     
-      // get my vcard
-      xClient.getVCard(jid).then((vcard) => {
-        setVCard(vcard)
-      }).catch(() => {
-        console.log('No vCard for', jid)
-        setVCard(null)
-      })
 
       // request carbons
       xClient.enableCarbons().then(() => {
@@ -197,6 +190,19 @@ export const Game: React.FC<GameProps> = ({ setPlayerState, setGameState, setThe
       
       // general presence announcement
       xClient.sendPresence()
+
+      // get my vcard
+      xClient.getVCard(jid).then((vcard: VCardTemp) => {
+        console.log('got vcard', vcard)
+        if (vcard.name || vcard.records) {
+          setVCard(vcard)
+        } else {
+          console.warn('Empty vcard received', vcard)
+        }
+      }).catch(() => {
+        console.log('No vcard for', jid)
+        setVCard(null)
+      })
   }
   
   // note: we ignore the exhaustive-deps warning here because#
@@ -260,6 +266,7 @@ useEffect(() => {
 /** join my rooms */
 useEffect(() => {
   if (forceId) {
+    console.log('registering force id node')
     subsManager?.subscribeToNode(FORCE_NODE + forceId, (msg) => {
       const forceDetails = msg as ForceDetails
       setForce(forceDetails)
@@ -297,7 +304,7 @@ useEffect(() => {
 }, [myRooms, showHidden])
 
 const handleLogout = useCallback(() => {
-  console.clear()
+  // console.clear()
   // leave rooms
   // console.log('Leaving rooms', trimmedRooms.length)
     if (xClient && myRooms !== null) {
