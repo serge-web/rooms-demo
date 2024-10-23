@@ -14,7 +14,7 @@ declare type LocalPubsubPublish = {
   },
 }
 
-interface NodeSubscription {
+type NodeSubscription = {
   node: string
   subId: string
   callback: SubsCallback<object>
@@ -28,26 +28,31 @@ export class SubsManager {
     this.xClient = xClient
     this.pubJid = pubJid
     this.subs = []
-    this.xClient.on('pubsub:published', (msg: LocalPubsubPublish) => {
-      console.log('SubMgr: pubsub:published', msg.pubsub.node, msg)
-      const items = msg.pubsub.items
-      if (items) {
-        const node = items.node
-        if (items.published && items.published.length > 0) {
-          const first = items.published[0] 
-          const content = first.content as JSONItem
-          const payload = JSON.parse(content.json)
-          const sub = this.subs.find((sub) => sub.node === node)
-          if (sub) {
-            sub.callback(payload)
-          } else {
-            console.warn('No callback for node', node)
+    if (this.xClient) {
+      this.xClient.on('pubsub:published', (msg: LocalPubsubPublish) => {
+        console.log('SubMgr: pubsub:published', msg.pubsub.node, msg)
+        const items = msg.pubsub.items
+        if (items) {
+          const node = items.node
+          if (items.published && items.published.length > 0) {
+            const first = items.published[0] 
+            const content = first.content as JSONItem
+            const payload = JSON.parse(content.json)
+            const sub = this.subs.find((sub) => sub.node === node)
+            if (sub) {
+              sub.callback(payload)
+            } else {
+              console.warn('No callback for node', node)
+            }
           }
         }
-      }
-    })
+      })  
+    }
   }
   subscribeToNode(node: string, callback: <T>(msg: T) => void): void {
+    if (!this.xClient)
+      return
+
     // check if already subscribed
     if (!this.subs.some((sub) => sub.node === node)) {
       const sub: NodeSubscription = {
@@ -71,13 +76,13 @@ export class SubsManager {
     }
   }
   async unsubscribeAll(): Promise<XMPP.Stanzas.PubsubSubscription[]> {
-    const unsubs = this.subs.map((sub) => {
+    const unsubs = this.xClient ? this.subs.map((sub) => {
       const options = {
         node: sub.node,
         subId: sub.subId
       }
       return this.xClient.unsubscribeFromNode(this.pubJid, options)
-    })
+    }) : []
     return await Promise.all(unsubs)
   }
 

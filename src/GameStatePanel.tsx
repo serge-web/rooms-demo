@@ -153,11 +153,11 @@ export const GameStatePanel: React.FC<GameStateProps> = ({ logout, sendMessage, 
     minHeight: '40px'
   }
 
-  const doUnsubscribe = () => {
+  const doUnsubscribe = (): void => {
     console.clear()
     if (!xClient) 
       return
-    
+
     // clear subscriptions
     const opts = {
     }
@@ -178,7 +178,7 @@ export const GameStatePanel: React.FC<GameStateProps> = ({ logout, sendMessage, 
     })
   }
 
-  const tmpSendMessage = () => {
+  const tmpSendMessage = (): void => {
     console.log('', !!GAME_THEME_NODE, !!GAME_STATE_NODE)
     console.clear()
 
