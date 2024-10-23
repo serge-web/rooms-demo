@@ -136,7 +136,7 @@ export const MUCRoom: React.FC<RoomProps> = ({ details, newMessage, height='735p
             setMessages(entries)
           }
           return entries
-        }).catch((err) => {
+        }).catch((err: unknown) => {
           console.error('getHistory error', jid, err)
         })
       }

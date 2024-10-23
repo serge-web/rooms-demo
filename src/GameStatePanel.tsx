@@ -13,7 +13,7 @@ import React from 'react';
 import Person3Icon from '@mui/icons-material/Person3';
 import { ADMIN_CHANNEL, FEEDBACK_CHANNEL, GAME_STATE_NODE, GAME_THEME_NODE } from './Constants';
 import { PlayerContext, PlayerContextInfo, RoomDetails } from './App';
-import { JSONItem } from 'stanza/protocol';
+import { JSONItem, PubsubSubscription, PubsubSubscriptions } from 'stanza/protocol';
 import { NS_JSON_0 } from 'stanza/Namespaces';
 import { createNodeIfNecessary } from './helpers/configNode';
 import { subscribeIfNecessary } from './helpers/subscribeIfNecessary';
@@ -116,7 +116,7 @@ export const GameStatePanel: React.FC<GameStateProps> = ({ logout, sendMessage, 
     }
 
     createNodeIfNecessary(xClient, pubJid, GAME_STATE_NODE, 'Game state').then(() => {
-      xClient.publish(jid, GAME_STATE_NODE, jsonItem).catch((err) => {
+      xClient.publish(jid, GAME_STATE_NODE, jsonItem).catch((err: unknown) => {
         console.error('Error publishing game state', err, !!subscribeIfNecessary)
       })
     })
@@ -156,9 +156,9 @@ export const GameStatePanel: React.FC<GameStateProps> = ({ logout, sendMessage, 
     // clear subscriptions
     const opts = {
     }
-    xClient.getSubscriptions(pubJid, opts).then(subs => {
+    xClient.getSubscriptions(pubJid, opts).then((subs:PubsubSubscriptions) => {
       console.log('got subscriptions', subs)
-      const doUnsub = subs.items ? subs.items.map(item => {
+      const doUnsub = subs.items ? subs.items.map((item: PubsubSubscription) => {
         const opts: XMPP.PubsubUnsubscribeOptions = {
           subid: item.subid,
           node: item.node
@@ -167,7 +167,7 @@ export const GameStatePanel: React.FC<GameStateProps> = ({ logout, sendMessage, 
       }) : []
       Promise.all(doUnsub).then((res) => {
         console.log('unsubscribed', res)
-      }).catch((err) => {
+      }).catch((err: unknown) => {
         console.error('Error unsubscribing', err)
       })
     })
@@ -185,7 +185,7 @@ export const GameStatePanel: React.FC<GameStateProps> = ({ logout, sendMessage, 
     // console.log('about to get item', jid, GAME_STATE_NODE)
     // xClient.getNodeAffiliations(jid, GAME_STATE_NODE).then((item) => {
     //   console.log('got item', item)
-    // }).catch((err) => {
+    // }).catch((err: unknown) => {
     //   console.error('Error getting game state', err)
     // })
 
@@ -200,7 +200,7 @@ export const GameStatePanel: React.FC<GameStateProps> = ({ logout, sendMessage, 
       //     console.log('Set vCard', res)
       //   })
       // }
-    }).catch((err) => {
+    }).catch((err: unknown) => {
       console.error('Error getting vCard', err)
     }).finally(() => {
       console.log('finally')
@@ -219,20 +219,20 @@ export const GameStatePanel: React.FC<GameStateProps> = ({ logout, sendMessage, 
     //   console.log('about to get items')
     //   xClient.getNodeSubscribers(pubJid, GAME_STATE_NODE).then((subscribers) => {
     //     console.log('subscribers', subscribers)
-    //   }).catch((err) => {
+    //   }).catch((err: unknown) => {
     //     console.error('Error getting game state', err)
     //   })
 
       // xClient.getItems(pubJid, GAME_STATE_NODE).then((item) => {
       //   console.log('got items', item)
-      // }).catch((err) => {
+      // }).catch((err: unknown) => {
       //   console.error('Error getting game state', err)
       // })
     // })
 
       // xClient.subscribeToNode(pubJid, GAME_STATE_NODE).then((res) => { 
       //   console.log('Subscribed to game state', res)
-      // }).catch((err) => {
+      // }).catch((err: unknown) => {
       //   console.log('Failed to subscribe to game state', err)
       // })
 
@@ -248,7 +248,7 @@ export const GameStatePanel: React.FC<GameStateProps> = ({ logout, sendMessage, 
     //   json: stateJSON
     // }
     // console.log('about to publish game state', jid, GAME_STATE_NODE, jsonItem, pubJid)
-    // xClient.publish(pubJid, GAME_STATE_NODE, jsonItem).catch((err) => {
+    // xClient.publish(pubJid, GAME_STATE_NODE, jsonItem).catch((err: unknown) => {
     //   console.error('Error publishing game state 2', err)
     // })
 
@@ -272,10 +272,10 @@ export const GameStatePanel: React.FC<GameStateProps> = ({ logout, sendMessage, 
     //   json: themeJSON
     // }
     // console.log('about to publish theme state', jid, GAME_STATE_NODE, jsonItem, pubJid)
-    // xClient.publish(pubJid, GAME_STATE_NODE, jsonItem).catch((err) => {
+    // xClient.publish(pubJid, GAME_STATE_NODE, jsonItem).catch((err: unknown) => {
     //   console.error('Error publishing game theme 2', err)
     // })
-    // xClient.publish(pubJid, GAME_THEME_NODE, jsonItem).catch((err) => {
+    // xClient.publish(pubJid, GAME_THEME_NODE, jsonItem).catch((err: unknown) => {
     //   console.error('Error publishing game theme 2', err)
     // })
 
@@ -285,13 +285,13 @@ export const GameStatePanel: React.FC<GameStateProps> = ({ logout, sendMessage, 
 
     // xClient.getNodeConfig(pubJid, GAME_STATE_NODE).then((res) => {
     //   console.log('node config', res)
-    // }).catch((err) => {
+    // }).catch((err: unknown) => {
     //   console.error('Error creating game state 2', err)
     // })
 
     // xClient.deleteNode(pubJid, GAME_STATE_NODE).then((res) => {
     //   console.log('node deleted', res)
-    // }).catch((err) => {
+    // }).catch((err: unknown) => {
     //   console.error('Error deleting game state 2', err)
     // })
 
@@ -299,7 +299,7 @@ export const GameStatePanel: React.FC<GameStateProps> = ({ logout, sendMessage, 
     // const affiliations: PubsubAffiliation[] = [{jid: jid, affiliation: 'owner'}, {jid: 'red-co@localhost', affiliation: 'publisher'}]
     // xClient.updateNodeAffiliations(jid, GAME_STATE_NODE, affiliations).then((res) => {
     //   console.log('Updated affiliations', res)
-    // }).catch((err) => {
+    // }).catch((err: unknown) => {
     //   console.error('Error updating affiliations', err)
     // })
 

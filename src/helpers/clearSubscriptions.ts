@@ -1,4 +1,5 @@
 import * as XMPP from 'stanza';
+import { PubsubSubscription } from 'stanza/protocol';
 
 export const clearSubscriptions = async (xClient: XMPP.Agent, pubJid: string, node: string,
   
@@ -7,7 +8,7 @@ export const clearSubscriptions = async (xClient: XMPP.Agent, pubJid: string, no
     node: node
   }
   return xClient.getSubscriptions(pubJid, opts).then(subs => {
-    const unsubPromises = subs.items ? subs.items.map(item => {
+    const unsubPromises = subs.items ? subs.items.map((item: PubsubSubscription) => {
       console.log('Unsubscribing from', node, item)
       const opts = {
         subid: item.subid,

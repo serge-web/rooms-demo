@@ -194,7 +194,7 @@ export const Game: React.FC<GameProps> = ({ setPlayerState, setGameState, parent
       // request carbons
       xClient.enableCarbons().then(() => {
         // console.log('carbons enabled')
-      }).catch((err) => {
+      }).catch((err: unknown) => {
         console.log('Failed to enable carbons', err)
       })
       
@@ -289,7 +289,7 @@ useEffect(() => {
             }
           }
         }
-        xClient.joinRoom(room.jid, resourceName, roomPresence).catch((err) => {
+        xClient.joinRoom(room.jid, resourceName, roomPresence).catch((err: unknown) => {
           console.log('Failed to join room', room, err)
         })  
       }  
@@ -310,7 +310,7 @@ const handleLogout = useCallback(() => {
       const rooms = myRooms.map(room => xClient.leaveRoom(room.jid || 'unknown'))
       Promise.all(rooms).then(() => {
         return subsManager?.unsubscribeAll()
-        }).catch((err) => {
+        }).catch((err: unknown) => {
           console.log('trouble leaving rooms', err)
         }).finally(() => {
           xClient.disconnect()

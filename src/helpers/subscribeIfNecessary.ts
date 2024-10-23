@@ -8,7 +8,7 @@ export const subscribeIfNecessary = async (xClient: XMPP.Agent, pubJid: string, 
     xClient.subscribeToNode(pubJid, node).then((res) => { 
       console.log('Subscribed to game state', node, subscriptions.length, res)
       setSubscriptions([...subscriptions, {node, subId: res.subid || 'unknown'}])
-    }).catch((err) => {
+    }).catch((err: unknown) => {
       console.log('Failed to subscribe to node:', node, err)
     })
   } else {

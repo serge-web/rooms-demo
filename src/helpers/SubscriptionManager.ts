@@ -1,5 +1,6 @@
 import * as XMPP from 'stanza';
-import { JSONItem } from 'stanza/protocol';
+import { StanzaErrorCondition } from 'stanza/Constants';
+import { JSONItem, StanzaError } from 'stanza/protocol';
 
 export type SubsCallback<t> = (msg: t) => void
 
@@ -50,8 +51,8 @@ export class SubsManager {
       
       this.xClient.subscribeToNode(this.pubJid, node).then((res) => {
         sub.subId = res.subid || 'unknown'
-      }).catch((err) => {
-        if (err.error.condition === 'item-not-found') {
+      }).catch((err: {error: StanzaError}) => {
+        if (err.error.condition === StanzaErrorCondition.ItemNotFound) {
           console.warn('Node does not exist:', node)
         } else {
           console.error('Failed to subscribe to node:', node, err)
