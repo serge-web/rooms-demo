@@ -1,8 +1,18 @@
 import * as XMPP from 'stanza';
 import { StanzaErrorCondition } from 'stanza/Constants';
-import { JSONItem, StanzaError } from 'stanza/protocol';
+import { JSONItem, PubsubEventItems, PubsubItem, StanzaError } from 'stanza/protocol';
+
 
 export type SubsCallback<t> = (msg: t) => void
+
+declare type LocalPubsubPublish = {
+  pubsub: PubsubEventItems & {
+      items: {
+          node: string,
+          published: PubsubItem[]
+      }
+  },
+}
 
 interface NodeSubscription {
   node: string
@@ -18,7 +28,7 @@ export class SubsManager {
     this.xClient = xClient
     this.pubJid = pubJid
     this.subs = []
-    this.xClient.on('pubsub:published', (msg) => {
+    this.xClient.on('pubsub:published', (msg: LocalPubsubPublish) => {
       console.log('SubMgr: pubsub:published', msg.pubsub.node, msg)
       const items = msg.pubsub.items
       if (items) {

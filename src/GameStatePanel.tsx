@@ -89,37 +89,39 @@ export const GameStatePanel: React.FC<GameStateProps> = ({ logout, sendMessage, 
   }, [vCard, forceDetails])
 
   const stepForward = () => {
-    console.clear()
+    if (xClient) {
+      console.clear()
 
-    let newState: GameState
-    if(gameState){
-      const time = new Date(gameState.gameTime)
-      // increment time by one hour
-      time.setHours(time.getHours() + 1)
-      newState = {...gameState,
-        gameTime:  time.toISOString(), 
-        gameTurn: gameState.gameTurn + 1}
-
-    } else {
-      newState = {
-        type: 'GameState',
-        gameTurn: 1,
-        gameTime: '2024-08-20T14:00:00Z',
-        gameTimeStep: '1 hour'
+      let newState: GameState
+      if(gameState){
+        const time = new Date(gameState.gameTime)
+        // increment time by one hour
+        time.setHours(time.getHours() + 1)
+        newState = {...gameState,
+          gameTime:  time.toISOString(), 
+          gameTurn: gameState.gameTurn + 1}
+  
+      } else {
+        newState = {
+          type: 'GameState',
+          gameTurn: 1,
+          gameTime: '2024-08-20T14:00:00Z',
+          gameTimeStep: '1 hour'
+        }
       }
-    }
-        
-    const stateJSON = JSON.stringify(newState)
-    const jsonItem: JSONItem = { 
-      itemType: NS_JSON_0,
-      json: stateJSON
-    }
-
-    createNodeIfNecessary(xClient, pubJid, GAME_STATE_NODE, 'Game state').then(() => {
-      xClient.publish(jid, GAME_STATE_NODE, jsonItem).catch((err: unknown) => {
-        console.error('Error publishing game state', err, !!subscribeIfNecessary)
+          
+      const stateJSON = JSON.stringify(newState)
+      const jsonItem: JSONItem = { 
+        itemType: NS_JSON_0,
+        json: stateJSON
+      }
+  
+      createNodeIfNecessary(xClient, pubJid, GAME_STATE_NODE, 'Game state').then(() => {
+        xClient.publish(jid, GAME_STATE_NODE, jsonItem).catch((err: unknown) => {
+          console.error('Error publishing game state', err, !!subscribeIfNecessary)
+        })
       })
-    })
+    }
   }
 
 
