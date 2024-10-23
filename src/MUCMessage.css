@@ -1,0 +1,11 @@
+.flexlayout__layout {
+    display: flex;
+    flex-grow: 2;
+    position: relative;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    position: absolute;
+    overflow: hidden;
+}
