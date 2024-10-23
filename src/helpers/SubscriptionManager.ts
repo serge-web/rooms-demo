@@ -53,8 +53,11 @@ export class SubsManager {
     if (!this.xClient)
       return
 
+    console.log('SUBSCRIBE TO 1', node)
+
     // check if already subscribed
     if (!this.subs.some((sub) => sub.node === node)) {
+      console.log('SUBSCRIBE TO 2', node)
       const sub: NodeSubscription = {
         node,
         subId: 'pending',
@@ -63,12 +66,12 @@ export class SubsManager {
       // store the callback before we subscribe, since there's a good chance
       // we'll instantly get a time-late published document
       this.subs.push(sub)
-      
       this.xClient.subscribeToNode(this.pubJid, node).then((res) => {
         sub.subId = res.subid || 'unknown'
       }).catch((err: {error: StanzaError}) => {
         if (err.error.condition === StanzaErrorCondition.ItemNotFound) {
           console.warn('Node does not exist:', node)
+          this.subs = this.subs.filter((item: NodeSubscription) => item.subId !== sub.subId)
         } else {
           console.error('Failed to subscribe to node:', node, err)
         }
@@ -81,6 +84,7 @@ export class SubsManager {
         node: sub.node,
         subId: sub.subId
       }
+      console.log('about to unsubscribe from', options)
       return this.xClient.unsubscribeFromNode(this.pubJid, options)
     }) : []
     return await Promise.all(unsubs)

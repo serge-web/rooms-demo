@@ -1,7 +1,7 @@
 import * as XMPP from 'stanza';
 import { PubsubSubscription, PubsubSubscriptions } from 'stanza/protocol';
 
-export const clearSubscriptions = async (xClient: XMPP.Agent, pubJid: string, node: string) => {
+export const clearSubscriptions = async (xClient: Readonly<XMPP.Agent>, pubJid: string, node: string) => {
   if (!xClient)
     return
   const opts = {

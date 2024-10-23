@@ -3,7 +3,7 @@ import * as XMPP from 'stanza';
 import { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import './Login.css';
 import { GameStatePanel } from './GameStatePanel';
-import { FLAG_IS_FEEDBACK_OBSERVER, FLAG_IS_GAME_CONTROL, FORCE_DETAILS, GAME_STATE, GAME_STATE_NODE, GAME_THEME_NODE, THEME } from './Constants'
+import { FLAG_IS_FEEDBACK_OBSERVER, FLAG_IS_GAME_CONTROL, FORCE_DETAILS, FORCE_NODE, GAME_STATE, GAME_STATE_NODE, GAME_THEME_NODE, THEME } from './Constants'
 import { SimpleDialog } from './SimpleDialog';
 import { MUCAllRooms } from './MUCAllRooms';
 import { PlayerContext, PlayerContextInfo, RoomDetails } from './App';
@@ -41,9 +41,9 @@ export interface ThemeDetails extends GameData {
 }
  
 export interface GameProps {
-  setPlayerState: (state: null) => void
-  setGameState: (state: GameState) => void
-  setThemeOptions: (theme: ThemeOptions) => void
+  setPlayerState: {(state: null): void}
+  setGameState: {(state: GameState): void}
+  setThemeOptions: {(theme: ThemeOptions): void}
 }
 
 const onlyLastForce = (forces: ForceDetails[]): ForceDetails[] => {
@@ -127,7 +127,7 @@ export const Game: React.FC<GameProps> = ({ setPlayerState, setGameState, setThe
       });
       
       xClient.on('bosh:terminate', (direction, data) => {
-        console.log('bosh:terminate: logging out', direction, 'data:', data)
+        console.log('bosh:terminate: logging out', direction, 'data:', data, !!force)
         // clear local data
         setNewMessage(undefined)
         setShowHidden(false)
@@ -172,9 +172,9 @@ export const Game: React.FC<GameProps> = ({ setPlayerState, setGameState, setThe
         }
       });
 
-      xClient.on('muc:leave', () => {
-        // console.log('new MUC leave', muc)
-      });
+      // xClient.on('muc:leave', () => {
+      //   // console.log('new MUC leave', muc)
+      // });
       
       xClient.on('muc:error', (muc) => {
         console.log('new MUC error', muc)
@@ -217,7 +217,6 @@ useEffect(() => {
       const gameTheme = msg as ThemeOptions
       setThemeOptions(gameTheme)
     })
-
   }
 }, [subsManager, setGameState, setThemeOptions])
 
@@ -261,7 +260,7 @@ useEffect(() => {
 /** join my rooms */
 useEffect(() => {
   if (forceId) {
-    subsManager?.subscribeToNode(FORCE_DETAILS + '.' + forceId, (msg) => {
+    subsManager?.subscribeToNode(FORCE_NODE + forceId, (msg) => {
       const forceDetails = msg as ForceDetails
       setForce(forceDetails)
     })  
@@ -296,8 +295,6 @@ useEffect(() => {
   }
   // eslint-disable-next-line react-hooks/exhaustive-deps
 }, [myRooms, showHidden])
-
-console.log('force', force)
 
 const handleLogout = useCallback(() => {
   console.clear()
