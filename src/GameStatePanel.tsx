@@ -312,8 +312,6 @@ export const GameStatePanel: React.FC<GameStateProps> = ({ logout, sendMessage, 
     //   console.error('Error updating affiliations', err)
     // })
   }
-
-  console.log('Game state', forceDetails)
   
   return (
     <Card className='out-of-game-feed'>

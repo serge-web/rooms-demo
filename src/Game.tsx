@@ -263,9 +263,8 @@ useEffect(() => {
 
 /** join my rooms */
 useEffect(() => {
-  if (forceId) {
-    console.log('registering force id node')
-    subsManager?.subscribeToNode(FORCE_NODE + forceId, (msg) => {
+  if (forceId && subsManager) {
+    subsManager.subscribeToNode(FORCE_NODE + forceId, (msg) => {
       const forceDetails = msg as ForceDetails
       setForce(forceDetails)
     })  
