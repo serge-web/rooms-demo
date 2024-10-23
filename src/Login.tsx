@@ -93,24 +93,23 @@ export const Login: React.FC<LoginProps> = ({ setPlayerState, welcomeTitle, welc
                     description: desc as string
                   }
                 })
-                
-                setPlayerState({
-                  domain: selectedWargame,
-                  fullJid: jid + '/' + username,
-                  jid: jid,
-                  resourceName: username,
-                  xClient: client,
-                  pubJid: context.pubJid || '',
-                  mucJid: context.mucJid || '',
-                  myRooms: context.myRooms || [],
-                  gameState: null})
-                })  
-              })
-            }
+              }).then(() => {
+                  setPlayerState({
+                    domain: selectedWargame,
+                    fullJid: jid + '/' + username,
+                    jid: jid,
+                    resourceName: username,
+                    xClient: client,
+                    pubJid: context.pubJid || '',
+                    mucJid: context.mucJid || '',
+                    myRooms: context.myRooms || [],
+                    gameState: null})
+                  }) 
+                })
+              }
+            })
           })
-        })
-      })
-      
+        })       
       
       client.on('auth:failed', () => {
         setDialogTitle('Login')

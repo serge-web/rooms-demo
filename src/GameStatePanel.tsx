@@ -11,7 +11,7 @@ import Groups2Icon from '@mui/icons-material/Groups2';
 import AdsClickIcon from '@mui/icons-material/AdsClick';
 import React from 'react';
 import Person3Icon from '@mui/icons-material/Person3';
-import { ADMIN_CHANNEL, FEEDBACK_CHANNEL, GAME_STATE_NODE, GAME_THEME_NODE } from './Constants';
+import { ADMIN_CHANNEL, FEEDBACK_CHANNEL, FLAG_IS_GAME_CONTROL, GAME_STATE_NODE, GAME_THEME_NODE } from './Constants';
 import { PlayerContext, PlayerContextInfo, RoomDetails } from './App';
 import { JSONItem } from 'stanza/protocol';
 import { NS_JSON_0 } from 'stanza/Namespaces';
@@ -31,9 +31,9 @@ export default interface GameStateProps {
   vCard: XMPP.Stanzas.VCardTemp | undefined | null
 }
 
-export const GameStatePanel: React.FC<GameStateProps> = ({ logout, sendMessage, showHidden, setShowHidden, isGameControl, properName, isFeedbackObserver, newMessage, forceDetails, vCard
+export const GameStatePanel: React.FC<GameStateProps> = ({ logout, sendMessage, showHidden, setShowHidden,  properName, isFeedbackObserver, newMessage, forceDetails, vCard
  }: GameStateProps) => {
-  const {fullJid, domain, myRooms, jid, xClient, gameState, pubJid} = useContext(PlayerContext) as PlayerContextInfo
+  const {fullJid, domain, myRooms, jid, xClient, gameState, pubJid, playerFlags, playerForce} = useContext(PlayerContext) as PlayerContextInfo
 
   const [adminDetails, setAdminDetails] = useState<RoomDetails | undefined>(undefined);
   const [feedbackDetails, setFeedbackDetails] = useState<RoomDetails | undefined>(undefined);
@@ -43,6 +43,8 @@ export const GameStatePanel: React.FC<GameStateProps> = ({ logout, sendMessage, 
   const [showFeedback, setShowFeedback] = useState<boolean>(false);
   const [userIcon, setUserIcon] = useState<ReactElement>(<></>) 
   const [objectivesIcon, setObjectivesIcon] = useState<ReactElement>(<></>)
+
+  const isGameControl = playerFlags.includes(FLAG_IS_GAME_CONTROL)
 
   useEffect(() => {
     if (gameState) {
@@ -189,6 +191,30 @@ export const GameStatePanel: React.FC<GameStateProps> = ({ logout, sendMessage, 
     //   console.error('Error getting game state', err)
     // })
 
+    xClient.getVCard(jid).then((vCard) => {
+      console.log('Got vCard', vCard)
+      if (!vCard.records || vCard.records.length === 0) {
+        // const cats: XMPP.Stanzas.VCardTempCategories = {
+        //   type: 'categories',
+        //   value: [FLAG_IS_GAME_CONTROL]
+        // }
+        const organization: XMPP.Stanzas.VCardTempOrg = {
+          type: 'organization',
+          value: 'blue'
+        }
+        const vc: XMPP.Stanzas.VCardTemp = {
+          records: [organization]
+        }
+        xClient.publishVCard(vc).then((res) => {
+          console.log('Set vCard', res)
+        })
+      }
+    }).catch((err) => {
+      console.error('Error getting vCard', err)
+    }).finally(() => {
+      console.log('finally')
+    })
+
     // xClient.getDefaultSubscriptionOptions(pubJid).then((items) => {
     //   console.log('Got disco', items, jid, !!subscribeIfNecessary)
     // })
@@ -292,7 +318,7 @@ export const GameStatePanel: React.FC<GameStateProps> = ({ logout, sendMessage, 
    
   return (
     <Card className='out-of-game-feed'>
-      <CardHeader title={<>{userIcon}<Typography component={'span'}>{properName || fullJid.split('@')[0]}</Typography>&nbsp;{objectivesIcon}</>} subheader={'T' + gameState?.gameTurn + ' ' + gameTime} />
+      <CardHeader title={<>{userIcon}<Typography component={'span'}>{properName || fullJid.split('@')[0]}{playerForce && ' - ' + playerForce}</Typography>&nbsp;{objectivesIcon}</>} subheader={'T' + gameState?.gameTurn + ' ' + gameTime} />
       <ButtonGroup orientation='horizontal'>
       <Button style={{marginRight:'10px'}}  variant='contained' onClick={() => logout()}>Logout</Button>
       <Button variant='contained' onClick={() => setShowFeedback(true)}>Feedback</Button>

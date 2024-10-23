@@ -172,7 +172,7 @@ export const Game: React.FC<GameProps> = ({ setPlayerState, setGameState, parent
         }
       });
 
-      xClient.on('muc:leave', (muc) => {
+      xClient.on('muc:leave', () => {
         // console.log('new MUC leave', muc)
       });
       
@@ -219,7 +219,7 @@ useEffect(() => {
     })
 
   }
-}, [subsManager, setGameState])
+}, [subsManager, setGameState, setThemeOptions])
 
 // update user flags from vCard categories
 useEffect(() => {
