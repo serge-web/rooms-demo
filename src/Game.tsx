@@ -41,7 +41,7 @@ export interface ThemeDetails extends GameData {
 }
  
 export interface GameProps {
-  setPlayerState: {(state: null): void}
+  setPlayerState: (state: null) => void
   setGameState: {(state: GameState): void}
   setThemeOptions: {(theme: ThemeOptions): void}
 }
