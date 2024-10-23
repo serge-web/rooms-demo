@@ -5,7 +5,7 @@ import { JSONItem, PubsubEventItems, PubsubItem, StanzaError } from 'stanza/prot
 
 export type SubsCallback<t> = (msg: t) => void
 
-declare type LocalPubsubPublish = {
+declare interface LocalPubsubPublish {
   pubsub: PubsubEventItems & {
       items: {
           node: string,
@@ -14,7 +14,7 @@ declare type LocalPubsubPublish = {
   },
 }
 
-type NodeSubscription = {
+interface NodeSubscription {
   node: string
   subId: string
   callback: SubsCallback<object>
