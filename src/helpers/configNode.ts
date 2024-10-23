@@ -1,7 +1,7 @@
 import * as XMPP from 'stanza';
 
 export const createNodeIfNecessary = async (xClient: XMPP.Agent, pubJid: string, node: string,
-  description: string, allVersions: boolean = false
+  description: string, allVersions = false
 ) => {
   // check if node exists
   xClient.getNodeConfig(pubJid, node).then(() => {

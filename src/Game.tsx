@@ -143,11 +143,11 @@ export const Game: React.FC<GameProps> = ({ setPlayerState, setGameState, setThe
         console.log('new MUC other', muc)
       });
       
-      xClient.on('muc:join', () => {
+      xClient?.on('muc:join', () => {
         // console.log('new MUC join', muc)
       });
 
-      xClient.on('muc:topic', () => {
+      xClient?.on('muc:topic', () => {
         // note: we ignore the room topic, we use the 
         // room-name from the room config details
         // console.log('new MUC topic', muc)
@@ -303,13 +303,12 @@ useEffect(() => {
 const handleLogout = useCallback(() => {
   console.clear()
   // leave rooms
-  // console.log('Leaving rooms', trimmedRooms.length)
     if (xClient && myRooms !== null) {
       const rooms = myRooms.map(room => xClient.leaveRoom(room.jid || 'unknown'))
       Promise.all(rooms).then(() => {
         return subsManager?.unsubscribeAll()
-        }).catch((err: unknown) => {
-          console.log('trouble leaving rooms', err)
+        }).catch((err: {pubsub: {unsubscribe: { node: string}}}) => {
+          console.log('trouble unsubscribing from node', err.pubsub.unsubscribe.node, err)
         }).finally(() => {
           xClient.disconnect()
           setPlayerState(null)

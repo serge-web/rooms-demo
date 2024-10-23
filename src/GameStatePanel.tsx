@@ -66,7 +66,7 @@ export const GameStatePanel: React.FC<GameStateProps> = ({ logout, sendMessage, 
       if (forceDetails.icon) {
         const icon = () => {
           const iconStyle: React.CSSProperties = {
-            color: forceDetails?.color || '#333'
+            color: forceDetails.color || '#333'
           }
           return <Person3Icon style={iconStyle}/>
         }

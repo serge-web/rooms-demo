@@ -22,6 +22,6 @@ export const clearSubscriptions = async (xClient: Readonly<XMPP.Agent>, pubJid: 
       })  
     }
   }).catch((err: unknown) => {
-    console.warn('trouble getting subscriptions', err)
+    console.warn('trouble getting subscriptions', node, err)
   })
 }
