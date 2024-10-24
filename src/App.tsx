@@ -21,6 +21,7 @@ export interface PlayerContextInfo {
   mucJid: string
   myRooms: RoomDetails[]
   gameState: GameState | null
+  oldMessages: XMPP.Stanzas.Forward[]
 }
 
 export const PlayerContext = createContext<PlayerContextInfo | null>(null)
@@ -51,6 +52,13 @@ function App() {
     setTheme(theme)
   }
 
+  const setOldMessages = useCallback((oldMessages: XMPP.Stanzas.Forward[]) => {
+    if (playerState) {
+      const newState = {...playerState, oldMessages} as PlayerContextInfo
+      setPlayerState(newState)
+    }
+  }, [playerState]);
+
   const setGameState = useCallback((gameState: GameState) => {
     const existingGameState = playerState?.gameState
     const existingJSON = JSON.stringify(existingGameState)
@@ -65,7 +73,7 @@ function App() {
     <ThemeProvider theme={theme || baseTheme}>
       { playerState && <PlayerContext.Provider value={playerState}>
               <Game setPlayerState={setPlayerState} setGameState={setGameState} 
-                setThemeOptions={setThemeOptions}  />
+                setThemeOptions={setThemeOptions} setOldMessages={setOldMessages} />
             </PlayerContext.Provider> }
       { !playerState && <Login welcomeTitle={welcomeTitle} setThemeOptions={setThemeOptions} setPlayerState={setPlayerState}
       welcomeMsg={welcomeMessage} /> }    

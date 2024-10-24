@@ -7,12 +7,13 @@ import { MUCNewMessage } from './MUCNewMessage';
 import { FOOTER_MARKER, MUCMessage } from './MUCMessage';
 import './MUCMessage.css';
 import { PlayerContext, PlayerContextInfo, RoomDetails } from './App';
+import { ExtendedAddress } from 'stanza/protocol';
 
 export default interface RoomProps {
   // details of room
   details: RoomDetails
   
-  newMessage: XMPP.Stanzas.Forward | undefined
+  newMessage: XMPP.Stanzas.Message
 
   // height value for the message list
   height?: string
@@ -32,24 +33,22 @@ export default interface RoomProps {
 
 export const MUCRoom: React.FC<RoomProps> = ({ details, newMessage, height='735px', 
   icon=<MeetingRoomIcon/>, compact, visible=true, showSendButton = true }: RoomProps) => {
-  const {xClient} = useContext(PlayerContext) as PlayerContextInfo
+  const {xClient, oldMessages} = useContext(PlayerContext) as PlayerContextInfo
 
   // const [members, setMembers] = useState<ReactElement>(<span/>);
-  const [messages, setMessages] = useState<XMPP.Stanzas.Forward[] | null>(null);
+  const [messages, setMessages] = useState<XMPP.Stanzas.Message[]>([]);
   const [description, setDescription] = useState<string | ReactElement>('')
   const [title, setTitle] = useState<string>('')
   const listRef = useRef(null);
   const [newMessagePending, setNewMessagePending] = useState<boolean>(false)
 
-  const historyDone = useRef<boolean>();
-
   // const showMembers = false
 
-  // console.log('room messages', jid, messages)
+  // console.log('room messages', details && details.jid, messages)
 
   // generate the UI elements for the messages
   const messagesRX = useMemo(() => {
-    if (messages) {
+    if (messages && details) {
       if (messages.length === 0) {
         return <span>Empty</span>
       } else {
@@ -61,8 +60,32 @@ export const MUCRoom: React.FC<RoomProps> = ({ details, newMessage, height='735p
     } else {
       return null
     }
-  }, [messages, compact])
+  }, [messages, compact, details])
   
+  useEffect(() => {
+    if (oldMessages && details) {
+      const myMessages = oldMessages.filter(msg => {
+        const stanza = msg as XMPP.Stanzas.Message
+        const room = stanza.from?.split('/')[0]
+        return room === details.jid
+      })
+    const newMessages: XMPP.Stanzas.Message[] = myMessages.map((msg: XMPP.Stanzas.Forward): XMPP.Stanzas.Message => {
+        const asMsg = msg as XMPP.Stanzas.Message
+        const fromAddr = asMsg.addresses as ExtendedAddress[]
+        const from = fromAddr && fromAddr.length > 0 ? fromAddr[0].jid : ''
+        return {
+          to: asMsg.to,
+          from: from,
+          id: asMsg.id,
+          lang: asMsg.lang,
+          type: asMsg.type,
+          body: asMsg.body,
+          delay: asMsg.delay
+        }
+      })
+      setMessages(newMessages)
+    }
+  }, [oldMessages, details])
   
   // scroll to the last message
   useEffect(() => {
@@ -86,11 +109,11 @@ export const MUCRoom: React.FC<RoomProps> = ({ details, newMessage, height='735p
   // get members
   useEffect(() => {
     if (newMessage !== undefined) {
-      const theRoom = newMessage.message?.from?.split('/')[0]
+      const theRoom = newMessage.from?.split('/')[0]
       if (details && theRoom === details.jid) {
         // check we don't already have this message
         // console.log('last one?', messages[messages.length - 1]?.message?.id, newMessage.message?.id)
-        const found = messages && messages.find((msg) => msg.message?.id === newMessage.message?.id)
+        const found = messages && messages.find((msg) => msg.id === newMessage.id)
         if (!found) {
           const newMessages = (messages === null) ? [newMessage] : [...messages, newMessage]
           setMessages(newMessages)
@@ -100,56 +123,6 @@ export const MUCRoom: React.FC<RoomProps> = ({ details, newMessage, height='735p
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [newMessage, details])
-  
-  // get message history
-  useEffect(() => {
-    if (xClient && details && details.jid && historyDone.current === undefined) {
-      // set flag to say we have been run
-      historyDone.current = true
-
-      // retrieve history for this room, if necessary
-      const startTime = new Date().getTime()
-
-      // method that we'll call recursively to get all the history
-      const getHistory = (jid: string, start: number, entries: XMPP.Stanzas.Forward[]) => {
-        // capture the page size and the start index
-        // TODO: currently the `count` is being ignored
-        const pOpts: Partial<XMPP.MAMQueryOptions> = {
-          paging: {count: 10, index: start}
-        }
-        // const time = new Date().getTime()
-        console.log('getting more results', jid, start)
-        xClient?.searchHistory(jid, pOpts).then((results) => {
-          const msgs:XMPP.Stanzas.Forward[] = results.results?.map((msg) => msg.item as XMPP.Stanzas.Forward) || []
-          const numReceived = results.results?.length || 0
-          // const elapsedSecs = (new Date().getTime() - time) / 1000
-          // console.log('got history after secs', elapsedSecs, jid, start, msgs.length, results)
-          entries.push(...msgs)
-          // msgs.forEach((msg) => {
-          //   // console.log('history entry', msg.delay?.timestamp, msg.message?.id)
-          // })
-          if (!results.complete) {
-            getHistory(jid, start + numReceived, entries)
-          } else {
-            const elapsedSecs = (new Date().getTime() - startTime) / 1000
-            console.log('History received for', jid.split('@')[0] + ' (' + entries.length, 'msgs in', elapsedSecs, 'secs)')
-            setMessages(entries)
-          }
-          return entries
-        }).catch((err: unknown) => {
-          console.error('getHistory error', jid, err)
-        })
-      }
-      
-      // the array that we'll append content into
-      const items: XMPP.Stanzas.Forward[] = []
-      // start the recursive process
-      // console.log('about to get history', jid, !!getHistory, items)
-      //if (jid.includes('chat'))
-      console.log('Not calling getHistory', !!getHistory, !!items)
-      // getHistory(details.jid, 0, items)
-    }
-  }, [details, xClient])
 
   // get room description and title
   useEffect(() => {

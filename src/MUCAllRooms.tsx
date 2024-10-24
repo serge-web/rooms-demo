@@ -11,6 +11,9 @@ export default interface AllRoomsProps {
   rooms: RoomDetails[]
   // new received message
   newMessage: XMPP.Stanzas.Forward | undefined
+
+  // old messages for all rooms
+  oldMessages: XMPP.Stanzas.Forward[]
 }
 
 type Factory = (node: FlexLayout.TabNode) => React.ReactNode
