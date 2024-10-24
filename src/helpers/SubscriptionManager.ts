@@ -22,6 +22,9 @@ interface NodeSubscription {
   subId: string
   callback: SubsCallback<object>
 }
+
+const PENDING = 'id-pending'
+
 /** class that handles subscriptions to pub-sub nodes, supporting callbacks
  * for when those documents change
  */
@@ -35,7 +38,7 @@ export class SubsManager {
     this.subs = []
     if (this.xClient) {
       this.xClient.on('pubsub:published', (msg: LocalPubsubPublish) => {
-        console.log('%% PubSub updated doc:', msg.pubsub.items.node)
+        console.log('%% PubSub updated doc:', msg.pubsub.items.node, msg.pubsub.items.published)
         const items = msg.pubsub.items
         if (items) {
           const node = items.node
@@ -63,24 +66,21 @@ export class SubsManager {
 
       // clear any existing subscriptions
       clearSubscriptions(this.xClient, this.pubJid, node).then(() => {
-        console.log('subscribing to', node)
         const sub: NodeSubscription = {
           node,
-          subId: 'pending',
+          subId: PENDING,
           callback
         }
         // store the callback before we subscribe, since there's a good chance
         // we'll instantly get a time-late published document
         this.subs.push(sub)
-        console.log('about to subscribe to', node)
         this.xClient.subscribeToNode(this.pubJid, node).then((res) => {
-          console.log('successfully subscribed', node)
           sub.subId = res.subid || 'unknown'
         }).catch((err: {error: StanzaError}) => {
           if (err.error.condition === StanzaErrorCondition.ItemNotFound) {
             console.warn('Node does not exist:', node, err)
             // delete the stored subscription
-            this.subs = this.subs.filter((item: NodeSubscription) => item.subId !== sub.subId)
+            // this.subs = this.subs.filter((item: NodeSubscription) => item.subId !== sub.subId)
           } else {
             console.error('Failed to subscribe to node:', node, err)
           }
@@ -89,13 +89,13 @@ export class SubsManager {
     }
   }
   async unsubscribeAll(): Promise<XMPP.Stanzas.PubsubSubscription[]> {
-    console.log('subscriptions:', this.subs)
-    const unsubs = this.xClient ? this.subs.map((sub) => {
+    const validSubs = this.subs.filter((sub) => sub.subId !== PENDING)
+    const unsubs = this.xClient ? validSubs.map((sub) => {
       const options = {
         node: sub.node,
         subId: sub.subId
       }
-      console.log('about to unsubscribe from', options)
+      // console.log('about to unsubscribe from', options)
       return this.xClient.unsubscribeFromNode(this.pubJid, options)
     }) : []
     return await Promise.all(unsubs)

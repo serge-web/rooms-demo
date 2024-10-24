@@ -64,7 +64,7 @@ export const Game: React.FC<GameProps> = ({ setPlayerState, setGameState, setThe
   const [newMessage, setNewMessage] = useState<XMPP.Stanzas.Forward | undefined>();
   const [showHidden, setShowHidden] = useState(false);
   // null for when no vCard found
-  const [vCard, setVCard] = useState<XMPP.Stanzas.VCardTemp | undefined | null>(undefined);
+  const [vCard, setVCard] = useState<XMPP.Stanzas.VCardTemp | null>(null);
   const [isGameControl, setIsGameControl] = useState<boolean>(false);
   const [isFeedbackObserver, setIsFeedbackObserver] = useState<boolean>(false);
   const [properName, setProperName] = useState<string>('');
@@ -191,7 +191,7 @@ export const Game: React.FC<GameProps> = ({ setPlayerState, setGameState, setThe
 
       // get my vcard
       xClient.getVCard(jid).then((vcard: VCardTemp) => {
-        console.log('got vcard', vcard)
+        console.log('vCard:', vcard, jid)
         if (vcard.name || vcard.records) {
           setVCard(vcard)
         } else {
@@ -199,7 +199,6 @@ export const Game: React.FC<GameProps> = ({ setPlayerState, setGameState, setThe
         }
       }).catch(() => {
         console.log('No vcard for', jid)
-        setVCard(null)
       })
   }
   
