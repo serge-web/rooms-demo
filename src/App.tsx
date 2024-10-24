@@ -22,6 +22,7 @@ export interface PlayerContextInfo {
   myRooms: RoomDetails[]
   gameState: GameState | null
   oldMessages: XMPP.Stanzas.Forward[]
+  roomsTheme: Theme | undefined
 }
 
 export const PlayerContext = createContext<PlayerContextInfo | null>(null)
@@ -29,7 +30,7 @@ export const PlayerContext = createContext<PlayerContextInfo | null>(null)
 const baseTheme: Theme = createTheme({
   palette: {
     primary: {
-      main: "#1a2461"
+      main: "#fa2461"
     },
     secondary: {
       main: "#494c7d"
@@ -72,9 +73,9 @@ function App() {
   return (
     <ThemeProvider theme={theme || baseTheme}>
       { playerState && <PlayerContext.Provider value={playerState}>
-              <Game setPlayerState={setPlayerState} setGameState={setGameState} 
+        <Game setPlayerState={setPlayerState} setGameState={setGameState} baseTheme={theme || baseTheme}
                 setThemeOptions={setThemeOptions} setOldMessages={setOldMessages} />
-            </PlayerContext.Provider> }
+          </PlayerContext.Provider> }
       { !playerState && <Login welcomeTitle={welcomeTitle} setThemeOptions={setThemeOptions} setPlayerState={setPlayerState}
       welcomeMsg={welcomeMessage} /> }    
     </ThemeProvider>

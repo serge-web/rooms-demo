@@ -13,8 +13,9 @@ export default interface RoomProps {
   // details of room
   details: RoomDetails
   
-  newMessage: XMPP.Stanzas.Message
-  
+  // placeholder for new messages
+  newMessage?: XMPP.Stanzas.Message
+
   // height value for the message list
   height?: string
   

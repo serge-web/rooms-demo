@@ -6,9 +6,11 @@ import { WelcomePage } from './WelcomePage';
 import { SimpleDialog } from './SimpleDialog';
 import { PlayerContextInfo, RoomDetails } from './App';
 import { useState } from 'react';
-import { GAME_STATE_NODE, GAME_THEME_NODE } from './Constants';
-import { ThemeOptions } from '@mui/material';
+import { GAME_STATE_NODE, GAME_THEME_NODE, ROOMS_THEME_NODE } from './Constants';
+import { createTheme, ThemeOptions } from '@mui/material';
 import { clearSubscriptions } from './helpers/clearSubscriptions';
+import { JSONItem } from 'stanza/protocol';
+import { ThemeDetails } from './Game';
 
 const wargames = ['localhost'];
 
@@ -72,7 +74,21 @@ export const Login: React.FC<LoginProps> = ({ setPlayerState, welcomeTitle, welc
           // clear any existing theme or game subscriptions
           return clearSubscriptions(client, context.pubJid || '', GAME_STATE_NODE)
         }).then(() => {
-          // get room configs
+          // see if there is a rooms theme
+           return client.getItems(context.pubJid || '', ROOMS_THEME_NODE)
+          }).then((items) => {
+            if (items && items.items && items.items.length > 0) {
+              const jsonItem = items.items[0]
+              if (jsonItem && jsonItem.content) {
+                const json = jsonItem.content  as JSONItem
+                const themeOptions = JSON.parse(json.json) as ThemeDetails
+                context.roomsTheme = createTheme(themeOptions.data)
+              }
+            }
+          }).catch((err) => {
+            console.log('Failed to get rooms theme', err)
+          }).then(() => {
+            // get room configs
           if (context.mucJid) {
             client.getDiscoItems(context.mucJid).then((rooms) => {
               return rooms.items
@@ -103,6 +119,7 @@ export const Login: React.FC<LoginProps> = ({ setPlayerState, welcomeTitle, welc
                     pubJid: context.pubJid || '',
                     mucJid: context.mucJid || '',
                     myRooms: context.myRooms || [],
+                    roomsTheme: context.roomsTheme,
                     oldMessages: [],
                     gameState: null})
                   }) 

@@ -7,7 +7,7 @@ import { FLAG_IS_FEEDBACK_OBSERVER, FLAG_IS_GAME_CONTROL, FORCE_DETAILS, FORCE_N
 import { SimpleDialog } from './SimpleDialog';
 import { MUCAllRooms } from './MUCAllRooms';
 import { PlayerContext, PlayerContextInfo, RoomDetails } from './App';
-import { ThemeOptions } from '@mui/material';
+import { Theme, ThemeOptions, ThemeProvider } from '@mui/material';
 import { SubsManager } from './helpers/SubscriptionManager';
 import { VCardTemp } from 'stanza/protocol';
 
@@ -46,6 +46,7 @@ export interface GameProps {
   setGameState: {(state: GameState): void}
   setThemeOptions: {(theme: ThemeOptions): void}
   setOldMessages: {(messages: XMPP.Stanzas.Forward[]): void}
+  baseTheme: Theme
 }
 
 const onlyLastForce = (forces: ForceDetails[]): ForceDetails[] => {
@@ -58,8 +59,8 @@ const onlyLastForce = (forces: ForceDetails[]): ForceDetails[] => {
   })
 }
 
-export const Game: React.FC<GameProps> = ({ setPlayerState, setGameState, setThemeOptions, setOldMessages }: GameProps) => {
-  const {jid, resourceName, xClient, myRooms, pubJid, oldMessages
+export const Game: React.FC<GameProps> = ({ setPlayerState, setGameState, setThemeOptions, setOldMessages, baseTheme }: GameProps) => {
+  const {jid, resourceName, xClient, myRooms, pubJid, oldMessages, roomsTheme
    } = useContext(PlayerContext) as PlayerContextInfo
   const [trimmedRooms, setTrimmedRooms] = useState<RoomDetails[]>([]);
   const [newMessage, setNewMessage] = useState<XMPP.Stanzas.Forward | undefined>();
@@ -357,7 +358,9 @@ const containerStyles:  React.CSSProperties = {
 }
 
 return ( <div style={containerStyles}>
-  <MUCAllRooms rooms={trimmedRooms} newMessage={newMessage} oldMessages={oldMessages} />  
+  <ThemeProvider theme={roomsTheme || baseTheme}>
+    <MUCAllRooms rooms={trimmedRooms} newMessage={newMessage} oldMessages={oldMessages} />  
+  </ThemeProvider>
   <GameStatePanel logout={handleLogout} 
   sendMessage={sendMessage} isGameControl={isGameControl}
   properName={properName} isFeedbackObserver={isFeedbackObserver} newMessage={newMessage}

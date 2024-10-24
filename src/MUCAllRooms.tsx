@@ -10,7 +10,7 @@ export default interface AllRoomsProps {
   // id of room
   rooms: RoomDetails[]
   // new received message
-  newMessage: XMPP.Stanzas.Forward | undefined
+  newMessage: XMPP.Stanzas.Message | undefined
 
   // old messages for all rooms
   oldMessages: XMPP.Stanzas.Forward[]
