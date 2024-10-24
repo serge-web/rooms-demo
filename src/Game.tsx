@@ -45,6 +45,7 @@ export interface GameProps {
   setPlayerState: (state: null) => void
   setGameState: {(state: GameState): void}
   setThemeOptions: {(theme: ThemeOptions): void}
+  setOldMessages: {(messages: XMPP.Stanzas.Forward[]): void}
 }
 
 const onlyLastForce = (forces: ForceDetails[]): ForceDetails[] => {
@@ -57,8 +58,8 @@ const onlyLastForce = (forces: ForceDetails[]): ForceDetails[] => {
   })
 }
 
-export const Game: React.FC<GameProps> = ({ setPlayerState, setGameState, setThemeOptions }: GameProps) => {
-  const {jid, resourceName, xClient, myRooms, pubJid
+export const Game: React.FC<GameProps> = ({ setPlayerState, setGameState, setThemeOptions, setOldMessages }: GameProps) => {
+  const {jid, resourceName, xClient, myRooms, pubJid, oldMessages
    } = useContext(PlayerContext) as PlayerContextInfo
   const [trimmedRooms, setTrimmedRooms] = useState<RoomDetails[]>([]);
   const [newMessage, setNewMessage] = useState<XMPP.Stanzas.Forward | undefined>();
@@ -77,9 +78,21 @@ export const Game: React.FC<GameProps> = ({ setPlayerState, setGameState, setThe
   
   const [subsManager, setSubsManager] = useState<SubsManager | null>(null)
 
+  const [pendingOldMessages] = useState<XMPP.Stanzas.Forward[]>([])
+
   // TODO: this flag prevents us setting up the client multiple times
   // it would be better to not have the issue
   const clientDone = useRef<boolean>();
+
+  const storeOldMessage = useCallback((msg: XMPP.Stanzas.Forward | null) => {
+    if (msg) {
+      pendingOldMessages.push(msg)  
+    } else {
+      console.log('old messages done', pendingOldMessages.length)
+      setOldMessages(pendingOldMessages)
+    }
+    // setOldMessages([...oldMessages, msg])
+  }, [pendingOldMessages, setOldMessages])
 
   // post-login steps
   useEffect(() => {
@@ -113,16 +126,29 @@ export const Game: React.FC<GameProps> = ({ setPlayerState, setGameState, setThe
         console.log('EV: chat3', msg)
       });
 
+      let timeout: NodeJS.Timeout
+
       // listen for incoming messages
       xClient.on('groupchat', (msg: XMPP.Stanzas.ReceivedMessage) => {
-        // console.log('EV: group chat', msg)
         const message: XMPP.Stanzas.Message = msg as XMPP.Stanzas.Message
-        // wrap message in a Forward stanza, so it has a delay
-        const forward: XMPP.Stanzas.Forward = {
-          message: message,
-          delay: message.delay || {timestamp: new Date()}
+        if (message.delay) {
+          // const source = message.stanzaIds && message.stanzaIds.length && message.stanzaIds[0].by || message.from
+          // console.log('ignoring legacy message', source, msg, msg.delay?.timestamp)
+          storeOldMessage(message)
+          if(timeout) {
+            clearTimeout(timeout)
+          }
+          timeout = setTimeout(() => {
+            storeOldMessage(null)
+          }, 500)
+          // setOldMessages([...oldMessages, message])
+        } else {
+          // old messages done, drop the array
+          console.log('EV: group chat', msg)
+          // wrap message in a Forward stanza, so it has a delay
+          const withTimeStamp = {...message, delay: {timestamp: new Date()}}
+          setNewMessage(withTimeStamp)
         }
-        setNewMessage(forward)
       });
       
       xClient.on('bosh:terminate', (direction, data) => {
@@ -331,7 +357,7 @@ const containerStyles:  React.CSSProperties = {
 }
 
 return ( <div style={containerStyles}>
-  <MUCAllRooms rooms={trimmedRooms} newMessage={newMessage} />  
+  <MUCAllRooms rooms={trimmedRooms} newMessage={newMessage} oldMessages={oldMessages} />  
   <GameStatePanel logout={handleLogout} 
   sendMessage={sendMessage} isGameControl={isGameControl}
   properName={properName} isFeedbackObserver={isFeedbackObserver} newMessage={newMessage}

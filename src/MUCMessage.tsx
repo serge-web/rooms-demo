@@ -5,7 +5,7 @@ import * as XMPP from 'stanza';
 import { useState, useEffect } from 'react';
 import moment from 'moment';
 export default interface MessageProps {
-  message: XMPP.Stanzas.Forward
+  message: XMPP.Stanzas.Message
   compact?: boolean
 }
 
@@ -19,7 +19,7 @@ export const MUCMessage: React.FC<MessageProps> = ({ message, compact=false }: M
 
   // get members
   useEffect(() => {
-    const bodyText = message.message?.body || ''
+    const bodyText = message.body || ''
     const limit = 30
     if (bodyText.length > limit) {
       setBody(bodyText.substring(0, limit) + '...')
@@ -27,7 +27,7 @@ export const MUCMessage: React.FC<MessageProps> = ({ message, compact=false }: M
     } else {
       setBody(bodyText)
     } 
-    setFrom(message.message?.from?.split('/')[1] || message.message?.muc?.jid?.split('@')[0] || '')
+    setFrom(message.from?.split('@')[0] || message.muc?.jid?.split('@')[0] || '')
     if (message.delay) {
       setTimestamp(moment(message.delay.timestamp).fromNow())
     } else {

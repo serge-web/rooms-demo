@@ -103,6 +103,7 @@ export const Login: React.FC<LoginProps> = ({ setPlayerState, welcomeTitle, welc
                     pubJid: context.pubJid || '',
                     mucJid: context.mucJid || '',
                     myRooms: context.myRooms || [],
+                    oldMessages: [],
                     gameState: null})
                   }) 
                 })
