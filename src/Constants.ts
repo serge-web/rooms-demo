@@ -8,7 +8,7 @@ export const ADMIN_CHANNEL = '_admin'
 export const FEEDBACK_CHANNEL = '_feedback'
 
 // names of PubSub nodes
-export const GAME_STATE_NODE = 'node.game-state'
+export const GAME_STATE_NODE = 'node.game-state3'
 export const GAME_THEME_NODE = 'node.theme'
 
 export const FORCE_NODE = 'node.force.'

@@ -15,7 +15,7 @@ import { ADMIN_CHANNEL, FEEDBACK_CHANNEL, GAME_STATE_NODE, GAME_THEME_NODE } fro
 import { PlayerContext, PlayerContextInfo, RoomDetails } from './App';
 import { JSONItem, PubsubSubscription, PubsubSubscriptions } from 'stanza/protocol';
 import { NS_JSON_0 } from 'stanza/Namespaces';
-import { createNodeIfNecessary } from './helpers/configNode';
+import { createNodeIfNecessaryThenPublish } from './helpers/configNode';
 import { subscribeIfNecessary } from './helpers/subscribeIfNecessary';
 
 export default interface GameStateProps {
@@ -33,7 +33,7 @@ export default interface GameStateProps {
 
 export const GameStatePanel: React.FC<GameStateProps> = ({ logout, sendMessage, showHidden, setShowHidden,  properName, isFeedbackObserver, isGameControl, newMessage, forceDetails, vCard
  }: GameStateProps) => {
-  const {fullJid, domain, myRooms, jid, xClient, gameState, pubJid} = useContext(PlayerContext) as PlayerContextInfo
+  const {fullJid, domain, myRooms, xClient, gameState, pubJid} = useContext(PlayerContext) as PlayerContextInfo
 
   const [adminDetails, setAdminDetails] = useState<RoomDetails | undefined>(undefined);
   const [feedbackDetails, setFeedbackDetails] = useState<RoomDetails | undefined>(undefined);
@@ -111,10 +111,9 @@ export const GameStatePanel: React.FC<GameStateProps> = ({ logout, sendMessage, 
         json: stateJSON
       }
   
-      createNodeIfNecessary(xClient, pubJid, GAME_STATE_NODE, 'Game state', true).then(() => {
-        xClient.publish(jid, GAME_STATE_NODE, jsonItem).catch((err: unknown) => {
-          console.error('Error publishing game state', err, !!subscribeIfNecessary)
-        })
+      createNodeIfNecessaryThenPublish(xClient, pubJid, GAME_STATE_NODE, 'Game state', 
+        jsonItem, true).catch((err: unknown) => {
+        console.error('Error publishing game state', err, !!subscribeIfNecessary)
       })
     }
   }
@@ -223,11 +222,11 @@ export const GameStatePanel: React.FC<GameStateProps> = ({ logout, sendMessage, 
     //     console.error('Error getting game state', err)
     //   })
 
-      xClient.getItems(pubJid, GAME_STATE_NODE).then((item) => {
-        console.log('got items', item)
-      }).catch((err: unknown) => {
-        console.error('Error getting game state', err)
-      })
+      // xClient.getItems(pubJid, GAME_STATE_NODE).then((item) => {
+      //   console.log('got items', item)
+      // }).catch((err: unknown) => {
+      //   console.error('Error getting game state', err)
+      // })
     // })
 
       // xClient.subscribeToNode(pubJid, GAME_STATE_NODE).then((res) => { 
@@ -292,11 +291,11 @@ export const GameStatePanel: React.FC<GameStateProps> = ({ logout, sendMessage, 
 
 
 
-    // xClient.getNodeConfig(pubJid, GAME_STATE_NODE).then((res) => {
-    //   console.log('node config', res)
-    // }).catch((err: unknown) => {
-    //   console.error('Error creating game state 2', err)
-    // })
+    xClient.getNodeConfig(pubJid, GAME_STATE_NODE).then((res) => {
+      console.log('node config', res)
+    }).catch((err: unknown) => {
+      console.error('Error creating game state 2', err)
+    })
 
     // xClient.deleteNode(pubJid, GAME_STATE_NODE).then((res) => {
     //   console.log('node deleted', res)

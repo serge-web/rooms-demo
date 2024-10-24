@@ -35,7 +35,7 @@ export class SubsManager {
     this.subs = []
     if (this.xClient) {
       this.xClient.on('pubsub:published', (msg: LocalPubsubPublish) => {
-        console.log('%% PubSub updated doc:', msg.pubsub.items.node)
+        console.log('%% PubSub updated doc:', msg.pubsub.items.node, msg.pubsub.items.published)
         const items = msg.pubsub.items
         if (items) {
           const node = items.node
@@ -80,7 +80,7 @@ export class SubsManager {
           if (err.error.condition === StanzaErrorCondition.ItemNotFound) {
             console.warn('Node does not exist:', node, err)
             // delete the stored subscription
-            this.subs = this.subs.filter((item: NodeSubscription) => item.subId !== sub.subId)
+            // this.subs = this.subs.filter((item: NodeSubscription) => item.subId !== sub.subId)
           } else {
             console.error('Failed to subscribe to node:', node, err)
           }
