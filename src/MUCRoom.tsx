@@ -13,7 +13,8 @@ export default interface RoomProps {
   // details of room
   details: RoomDetails
   
-  newMessage: XMPP.Stanzas.Message
+  // placeholder for new messages
+  newMessage?: XMPP.Stanzas.Message
 
   // height value for the message list
   height?: string
@@ -69,7 +70,7 @@ export const MUCRoom: React.FC<RoomProps> = ({ details, newMessage, height='735p
         const room = stanza.from?.split('/')[0]
         return room === details.jid
       })
-    const newMessages: XMPP.Stanzas.Message[] = myMessages.map((msg: XMPP.Stanzas.Forward): XMPP.Stanzas.Message => {
+      const newMessages: XMPP.Stanzas.Message[] = myMessages.map((msg: XMPP.Stanzas.Forward): XMPP.Stanzas.Message => {
         const asMsg = msg as XMPP.Stanzas.Message
         const fromAddr = asMsg.addresses as ExtendedAddress[]
         const from = fromAddr && fromAddr.length > 0 ? fromAddr[0].jid : ''
