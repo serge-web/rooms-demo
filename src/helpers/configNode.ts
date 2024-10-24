@@ -4,11 +4,10 @@ import { JSONItem } from 'stanza/protocol';
 export const createNodeIfNecessaryThenPublish = async (xClient: XMPP.Agent, pubJid: string, node: string,
   description: string, jsonItem: JSONItem, allVersions = false
 ) => {
-  console.log('about to create node (if necessary)', pubJid, node, allVersions)
   // check if node exists
   xClient.getNodeConfig(pubJid, node).then(() => {
     // success
-    console.log('got config for node', node)
+    // console.log('got config for node', node)
   }).catch((err: { error: { condition: string } }) => {
     // ignore compiler warning for unknown type on line below
     if (err.error.condition === 'item-not-found') {

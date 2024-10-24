@@ -191,7 +191,7 @@ export const Game: React.FC<GameProps> = ({ setPlayerState, setGameState, setThe
 
       // get my vcard
       xClient.getVCard(jid).then((vcard: VCardTemp) => {
-        console.log('got vcard', vcard)
+        console.log('got vcard', vcard, jid)
         if (vcard.name || vcard.records) {
           setVCard(vcard)
         } else {

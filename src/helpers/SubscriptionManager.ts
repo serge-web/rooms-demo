@@ -66,7 +66,6 @@ export class SubsManager {
 
       // clear any existing subscriptions
       clearSubscriptions(this.xClient, this.pubJid, node).then(() => {
-        console.log('subscribing to', node)
         const sub: NodeSubscription = {
           node,
           subId: PENDING,
@@ -76,7 +75,6 @@ export class SubsManager {
         // we'll instantly get a time-late published document
         this.subs.push(sub)
         this.xClient.subscribeToNode(this.pubJid, node).then((res) => {
-          console.log('successfully subscribed', node)
           sub.subId = res.subid || 'unknown'
         }).catch((err: {error: StanzaError}) => {
           if (err.error.condition === StanzaErrorCondition.ItemNotFound) {
@@ -91,14 +89,13 @@ export class SubsManager {
     }
   }
   async unsubscribeAll(): Promise<XMPP.Stanzas.PubsubSubscription[]> {
-    console.log('subscriptions:', this.subs)
     const validSubs = this.subs.filter((sub) => sub.subId !== PENDING)
     const unsubs = this.xClient ? validSubs.map((sub) => {
       const options = {
         node: sub.node,
         subId: sub.subId
       }
-      console.log('about to unsubscribe from', options)
+      // console.log('about to unsubscribe from', options)
       return this.xClient.unsubscribeFromNode(this.pubJid, options)
     }) : []
     return await Promise.all(unsubs)
