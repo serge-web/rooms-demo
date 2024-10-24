@@ -15,7 +15,7 @@ import { ADMIN_CHANNEL, FEEDBACK_CHANNEL, GAME_STATE_NODE, GAME_THEME_NODE } fro
 import { PlayerContext, PlayerContextInfo, RoomDetails } from './App';
 import { JSONItem, PubsubSubscription, PubsubSubscriptions } from 'stanza/protocol';
 import { NS_JSON_0 } from 'stanza/Namespaces';
-import { createNodeIfNecessaryThenPublish } from './helpers/configNode';
+import { createNodeIfNecessaryThenPublish } from './helpers/createThenPublishNode';
 import { subscribeIfNecessary } from './helpers/subscribeIfNecessary';
 
 export default interface GameStateProps {
