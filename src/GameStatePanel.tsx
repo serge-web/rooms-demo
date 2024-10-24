@@ -190,19 +190,19 @@ export const GameStatePanel: React.FC<GameStateProps> = ({ logout, sendMessage, 
 
     // xClient.getVCard(jid).then((vCard) => {
     //   console.log('Got vCard', vCard)
-    //   // if (vCard.records) {
-    //   //   const categories = vCard.records.find((record) => record.type === 'categories')
-    //   //   if (categories) {
-    //   //     categories.value.push(FLAG_IS_FEEDBACK_OBSERVER)
-    //   //   }
-    //   //   xClient.publishVCard(vCard).then((res) => {
-    //   //     console.log('Set vCard', res)
-    //   //   })
-    //   // }
-    // }).catch((err: unknown) => {
+    //   const org: VCardTempOrg = {
+    //     value: 'red',
+    //     type: 'organization'
+    //   }
+    //   vCard.records = []
+    //   vCard.records.push(org)
+    //   xClient.publishVCard(vCard).then((res) => {
+    //     console.log('Set vCard', res)
+    //   }).catch((err: unknown) => {
+    //     console.error('Error setting vCard', err)
+    //   })
+    //  }).catch((err: unknown) => {
     //   console.error('Error getting vCard', err)
-    // }).finally(() => {
-    //   console.log('finally')
     // })
 
     // xClient.getDefaultSubscriptionOptions(pubJid).then((items) => {
@@ -291,11 +291,11 @@ export const GameStatePanel: React.FC<GameStateProps> = ({ logout, sendMessage, 
 
 
 
-    xClient.getNodeConfig(pubJid, GAME_STATE_NODE).then((res) => {
-      console.log('node config', res)
-    }).catch((err: unknown) => {
-      console.error('Error creating game state 2', err)
-    })
+    // xClient.getNodeConfig(pubJid, GAME_STATE_NODE).then((res) => {
+    //   console.log('node config', res)
+    // }).catch((err: unknown) => {
+    //   console.error('Error creating game state 2', err)
+    // })
 
     // xClient.deleteNode(pubJid, GAME_STATE_NODE).then((res) => {
     //   console.log('node deleted', res)
