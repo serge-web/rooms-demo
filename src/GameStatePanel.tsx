@@ -1,7 +1,7 @@
 // MUCMessage.tsx
 import { Box, Button, ButtonGroup, Card, CardHeader, Tab, Tabs, Tooltip, Typography  } from '@mui/material';
 import './GameStatePanel.css';
-import { GameState, ForceDetails } from './Game';
+import { GameState, ForceDetails, ThemeDetails } from './Game';
 import * as XMPP from 'stanza';
 import { useState, useEffect, ReactElement, SyntheticEvent, useContext } from 'react';
 import { MUCRoom } from './MUCRoom';
@@ -11,7 +11,7 @@ import Groups2Icon from '@mui/icons-material/Groups2';
 import AdsClickIcon from '@mui/icons-material/AdsClick';
 import React from 'react';
 import Person3Icon from '@mui/icons-material/Person3';
-import { ADMIN_CHANNEL, FEEDBACK_CHANNEL, GAME_STATE_NODE, GAME_THEME_NODE } from './Constants';
+import { ADMIN_CHANNEL, FEEDBACK_CHANNEL, GAME_STATE_NODE, GAME_THEME_NODE, ROOMS_THEME_NODE } from './Constants';
 import { PlayerContext, PlayerContextInfo, RoomDetails } from './App';
 import { JSONItem, PubsubSubscription, PubsubSubscriptions } from 'stanza/protocol';
 import { NS_JSON_0 } from 'stanza/Namespaces';
@@ -251,19 +251,22 @@ export const GameStatePanel: React.FC<GameStateProps> = ({ logout, sendMessage, 
     //   console.error('Error publishing game state 2', err)
     // })
 
-    // const theme: ThemeDetails = {
-    //   type: 'Theme',
-    //   data: {
-    //     palette: {
-    //       primary: {
-    //         main: "#9a2461"
-    //       },
-    //       secondary: {
-    //         main: "#494c7d"
-    //       }
-    //     }
-    //   }
-    // }
+    const theme: ThemeDetails = {
+      type: 'Theme',
+      data: {
+        palette: {
+          primary: {
+            main: "#fa2461"
+          },
+          secondary: {
+            main: "#494c7d"
+          }
+        },
+        typography: {
+          fontFamily: 'Georgia',
+        }
+      }
+    }
     // const blueForce: ForceDetails = {
     //   type: FORCE_DETAILS,
     //   id: 'blue',
@@ -272,15 +275,16 @@ export const GameStatePanel: React.FC<GameStateProps> = ({ logout, sendMessage, 
     //   objective: 'Capture the flag'
     // }
 
-    // const themeJSON = JSON.stringify(blueForce)
-    // const jsonItem: JSONItem = { 
-    //   itemType: NS_JSON_0,
-    //   json: themeJSON
-    // }
-    // console.log('about to publish theme state', jid, FORCE_NODE + 'blue', jsonItem, pubJid)
-    // xClient.publish(pubJid, FORCE_NODE + 'blue', jsonItem).catch((err: unknown) => {
-    //   console.error('Error publishing game theme 2', err)
-    // })
+    const themeJSON = JSON.stringify(theme)
+    const jsonItem: JSONItem = { 
+      itemType: NS_JSON_0,
+      json: themeJSON
+    }
+    createNodeIfNecessaryThenPublish(xClient, pubJid, ROOMS_THEME_NODE, 'Rooms Theme', 
+      jsonItem, true).catch((err: unknown) => {
+      console.error('Error publishing game state', err, !!subscribeIfNecessary)
+    })
+//    console.log('about to publish theme state', jid, FORCE_NODE + 'blue', jsonItem, pubJid)
 
     // xClient.publish(pubJid, GAME_THEME_NODE, jsonItem).catch((err: unknown) => {
     //   console.error('Error publishing game theme 2', err)
