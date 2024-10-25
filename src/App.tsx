@@ -30,7 +30,7 @@ export const PlayerContext = createContext<PlayerContextInfo | null>(null)
 const baseTheme: Theme = createTheme({
   palette: {
     primary: {
-      main: "#fa2461"
+      main: "#1a2461"
     },
     secondary: {
       main: "#494c7d"
