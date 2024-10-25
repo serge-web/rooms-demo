@@ -64,26 +64,28 @@ export const MUCRoom: React.FC<RoomProps> = ({ details, newMessage, height='735p
     }, [messages, compact, details])
     
     useEffect(() => {
-      const myMessages = oldMessages.filter(msg => {
-        const stanza = msg as XMPP.Stanzas.Message
-        const room = stanza.from?.split('/')[0]
-        return room === details.jid
-      })
-      const newMessages: XMPP.Stanzas.Message[] = myMessages.map((msg: XMPP.Stanzas.Forward): XMPP.Stanzas.Message => {
-        const asMsg = msg as XMPP.Stanzas.Message
-        const fromAddr = asMsg.addresses as ExtendedAddress[]
-        const from = fromAddr && fromAddr.length > 0 ? fromAddr[0].jid : ''
-        return {
-          to: asMsg.to,
-          from: from,
-          id: asMsg.id,
-          lang: asMsg.lang,
-          type: asMsg.type,
-          body: asMsg.body,
-          delay: asMsg.delay
-        }
-      })
-      setMessages(newMessages)
+      if (details) {
+        const myMessages = oldMessages.filter(msg => {
+          const stanza = msg as XMPP.Stanzas.Message
+          const room = stanza.from?.split('/')[0]
+          return room === details.jid
+        })
+        const newMessages: XMPP.Stanzas.Message[] = myMessages.map((msg: XMPP.Stanzas.Forward): XMPP.Stanzas.Message => {
+          const asMsg = msg as XMPP.Stanzas.Message
+          const fromAddr = asMsg.addresses as ExtendedAddress[]
+          const from = fromAddr && fromAddr.length > 0 ? fromAddr[0].jid : ''
+          return {
+            to: asMsg.to,
+            from: from,
+            id: asMsg.id,
+            lang: asMsg.lang,
+            type: asMsg.type,
+            body: asMsg.body,
+            delay: asMsg.delay
+          }
+        })
+        setMessages(newMessages)
+      }
     }, [oldMessages, details])
     
     // scroll to the last message
