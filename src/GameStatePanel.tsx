@@ -15,8 +15,6 @@ import { ADMIN_CHANNEL, FEEDBACK_CHANNEL, GAME_STATE_NODE, GAME_THEME_NODE, ROOM
 import { GameContext, PlayerContext, PlayerContextInfo, RoomDetails } from './App';
 import { JSONItem, PubsubSubscription, PubsubSubscriptions } from 'stanza/protocol';
 import { NS_JSON_0 } from 'stanza/Namespaces';
-import { createNodeIfNecessaryThenPublish } from './helpers/createThenPublishNode';
-import { subscribeIfNecessary } from './helpers/subscribeIfNecessary';
 
 export default interface GameStateProps {
   logout: () => void
@@ -33,7 +31,7 @@ export default interface GameStateProps {
 
 export const GameStatePanel: React.FC<GameStateProps> = ({ logout, sendMessage, showHidden, setShowHidden,  properName, isFeedbackObserver, isGameControl, newMessage, forceDetails, vCard
  }: GameStateProps) => {
-  const {fullJid, domain, myRooms, xClient, pubJid} = useContext(PlayerContext) as PlayerContextInfo
+  const {fullJid, domain, myRooms, xClient, pubJid, stanzaMgr} = useContext(PlayerContext) as PlayerContextInfo
   const gameState = useContext(GameContext) as GameState
 
   const [adminDetails, setAdminDetails] = useState<RoomDetails | undefined>(undefined);
@@ -112,9 +110,9 @@ export const GameStatePanel: React.FC<GameStateProps> = ({ logout, sendMessage, 
         json: stateJSON
       }
   
-      createNodeIfNecessaryThenPublish(xClient, pubJid, GAME_STATE_NODE, 'Game state', 
+      stanzaMgr.createNodeIfNecessaryThenPublish(GAME_STATE_NODE, 'Game state', 
         jsonItem, true).catch((err: unknown) => {
-        console.error('Error publishing game state', err, !!subscribeIfNecessary)
+        console.error('Error publishing game state', err)
       })
     }
   }
@@ -207,10 +205,8 @@ export const GameStatePanel: React.FC<GameStateProps> = ({ logout, sendMessage, 
     // })
 
     // xClient.getDefaultSubscriptionOptions(pubJid).then((items) => {
-    //   console.log('Got disco', items, jid, !!subscribeIfNecessary)
+    //   console.log('Got disco', items, jid)
     // })
-
-    // subscribeIfNecessary(xClient, pubJid, GAME_STATE_NODE, jid)
 
     // console.log('about to get item', jid, GAME_STATE_NODE, !!pubJid)
     // xClient.getNodeConfig(pubJid, GAME_STATE_NODE).then((info) => {
@@ -281,9 +277,9 @@ export const GameStatePanel: React.FC<GameStateProps> = ({ logout, sendMessage, 
       itemType: NS_JSON_0,
       json: themeJSON
     }
-    createNodeIfNecessaryThenPublish(xClient, pubJid, ROOMS_THEME_NODE, 'Rooms Theme', 
+    stanzaMgr.createNodeIfNecessaryThenPublish(ROOMS_THEME_NODE, 'Rooms Theme', 
       jsonItem, true).catch((err: unknown) => {
-      console.error('Error publishing game state', err, !!subscribeIfNecessary)
+      console.error('Error publishing game state', err)
     })
 //    console.log('about to publish theme state', jid, FORCE_NODE + 'blue', jsonItem, pubJid)
 
