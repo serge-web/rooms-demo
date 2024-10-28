@@ -319,7 +319,7 @@ export const GameStatePanel: React.FC<GameStateProps> = ({ logout, sendMessage, 
   
   return (
     <Card className='out-of-game-feed'>
-      <CardHeader title={<>{userIcon}<Typography component={'span'}>{properName || fullJid.split('@')[0]}
+      <CardHeader title={<>{userIcon}<Typography component={'span'}>{properName || fullJid?.split('@')[0]}
         {vCard && vCard.fullName && (' - ' + vCard.fullName)}</Typography>&nbsp;{objectivesIcon}</>} subheader={'T' + gameState?.gameTurn + ' ' + gameTime} />
       <ButtonGroup orientation='horizontal'>
       <Button style={{marginRight:'10px'}}  variant='contained' onClick={() => logout()}>Logout</Button>

@@ -50,12 +50,13 @@ export const Login: React.FC<LoginProps> = ({ setPlayerState, welcomeTitle, welc
       const stanzaMgr = new StanzaManager(client, selectedWargame, username)
       console.log('mgr', stanzaMgr)
 
-      const state: PlayerContextInfo | null = stanzaMgr.config()
-      if (state) {
-        setPlayerState(state)
-        stanzaMgr.print()
-        console.log('state', state)  
-      }
+      stanzaMgr.config().then((state) => {
+        if (state) {
+          setPlayerState(state)
+        } else {
+          console.error('No state')
+        }
+      })
     })
 
 

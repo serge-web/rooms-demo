@@ -23,50 +23,47 @@ export class StanzaManager {
   }
   constructor(xClient: XMPP.Agent, wargame: string, username: string) {
     this.client = xClient
-    this.fullJid = wargame + '/' + username
+    this.fullJid = username + '@' + wargame
     this.wargame = wargame
   }
   subscribeToNode(node: string, callback: <T>(msg: T) => void): void {
     this.subsMgr?.subscribeToNode(node, callback)
   }
-  async unsubscribeAll(): Promise<XMPP.Stanzas.PubsubSubscription[]> {
-    return this.unsubscribeAll()
+  async unsubscribeAll(): Promise<XMPP.Stanzas.PubsubSubscription[] | undefined> {
+    return this.subsMgr?.unsubscribeAll()
   }
-  
-  config(): PlayerContextInfo | null {
+  async config(): Promise<PlayerContextInfo | null> {
     if (this.client) {
-      console.log('congiguring stanza manager')
       let roomIds: string[] = []
       let roomNames: string[]
       const state: Partial<PlayerContextInfo> = { }
       const serviceJids: Array<string> = []
       const promises: Promise<XMPP.Stanzas.DiscoInfoResult>[] = []
-      this.client.getDiscoItems(this.wargame).then((services) => {
+      return this.client.getDiscoItems(this.wargame).then((services) => {
         // get the capabilities
         serviceJids.push(... services.items.map((item) => item.jid as string))
         promises.push(... services.items.map((item) => this.client.getDiscoInfo(item.jid)))
       }).then(() => {
-        Promise.all(promises).then((capabilities) => {
-          capabilities.forEach((capability, index) => {
-            // console.log('capability', capability)
-            const jid = serviceJids[index]
-            if(capability.features.find((feature) => feature === 'http://jabber.org/protocol/muc')) { 
-              this.mucJid = jid as string
-              state.mucJid = jid
-            }
-            if(capability.features.find((feature) => feature === 'http://jabber.org/protocol/pubsub')) { 
-              this.pubJid = jid as string
-              state.pubJid = jid
-              this.subsMgr = new SubsManager(this.client, this.pubJid)
-            }
-          })
+        return Promise.all(promises)
+      }).then((capabilities) => {
+        capabilities.forEach((capability, index) => {
+          // console.log('capability', capability)
+          const jid = serviceJids[index]
+          if(capability.features.find((feature) => feature === 'http://jabber.org/protocol/muc')) { 
+            this.mucJid = jid as string
+            state.mucJid = jid
+          }
+          if(capability.features.find((feature) => feature === 'http://jabber.org/protocol/pubsub')) { 
+            this.pubJid = jid as string
+            state.pubJid = jid
+            this.subsMgr = new SubsManager(this.client, this.pubJid)
+          }
         })
       }).then(() => {
         return this.client.getDiscoItems(this.mucJid) 
       }).then((rooms) => {
         return rooms.items
       }).then((rooms) => {
-        console.log('SETTING player state')
         roomIds = rooms.map((room) => room.jid || '')
         roomNames = rooms.map((room) => room.name || '')
         const queryRooms = rooms.map((room) => this.client.getDiscoInfo(room.jid || ''))
@@ -85,6 +82,7 @@ export class StanzaManager {
       }).then(() => {
         return this.client.getVCard(this.fullJid)
       }).then((vCard) => {
+        console.log('requesting vCard for', this.fullJid, vCard)
         state.vCard = vCard
       }).catch((err) => {
         console.error('Error in stanza manager', err)

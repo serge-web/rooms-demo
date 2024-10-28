@@ -313,6 +313,7 @@ const handleLogout = useCallback(() => {
       Promise.all(rooms).then(() => {
         return stanzaMgr?.unsubscribeAll()
         }).catch((err: {pubsub: {unsubscribe: { node: string}}}) => {
+          console.log('unsub err', err)
           console.log('trouble unsubscribing from node', err.pubsub.unsubscribe.node, err)
         }).finally(() => {
           xClient.disconnect()
