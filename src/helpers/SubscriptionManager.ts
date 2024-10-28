@@ -63,7 +63,8 @@ export class SubsManager {
     }
     await xClient.getSubscriptions(pubJid, opts).then((subs: PubsubSubscriptions) => {
       if (subs.items) {
-        const unsubPromises = (subs && subs.items) ? subs.items.map((item: PubsubSubscription): Promise<PubsubSubscriptionOptions> => {
+        const unsubPromises = (subs && subs.items) ? 
+          subs.items.map((item: PubsubSubscription): Promise<PubsubSubscriptionOptions> => {
           const opts: XMPP.PubsubUnsubscribeOptions = {
             subid: item.subid,
             node: node
