@@ -71,7 +71,7 @@ export class SubsManager {
           return xClient.unsubscribeFromNode(pubJid, opts)
         }) : []
         return Promise.all(unsubPromises).catch((err: unknown) => {
-          console.log('Error unsubscribing', err)
+          console.log('Error unsubscribing 2', err)
         })  
       }
     }).catch((err: unknown) => {

@@ -13,7 +13,7 @@ import React from 'react';
 import Person3Icon from '@mui/icons-material/Person3';
 import { ADMIN_CHANNEL, FEEDBACK_CHANNEL, GAME_STATE_NODE, GAME_THEME_NODE, ROOMS_THEME_NODE } from './Constants';
 import { GameContext, PlayerContext, PlayerContextInfo, RoomDetails } from './App';
-import { JSONItem, PubsubSubscription, PubsubSubscriptions } from 'stanza/protocol';
+import { JSONItem } from 'stanza/protocol';
 import { NS_JSON_0 } from 'stanza/Namespaces';
 
 export default interface GameStateProps {
@@ -31,7 +31,7 @@ export default interface GameStateProps {
 
 export const GameStatePanel: React.FC<GameStateProps> = ({ logout, sendMessage, showHidden, setShowHidden,  properName, isFeedbackObserver, isGameControl, newMessage, forceDetails, vCard
  }: GameStateProps) => {
-  const {fullJid, domain, myRooms, xClient, pubJid, stanzaMgr} = useContext(PlayerContext) as PlayerContextInfo
+  const {fullJid, domain, myRooms, stanzaMgr} = useContext(PlayerContext) as PlayerContextInfo
   const gameState = useContext(GameContext) as GameState
 
   const [adminDetails, setAdminDetails] = useState<RoomDetails | undefined>(undefined);
@@ -83,7 +83,7 @@ export const GameStatePanel: React.FC<GameStateProps> = ({ logout, sendMessage, 
   }, [forceDetails])
 
   const stepForward = () => {
-    if (xClient) {
+    if (stanzaMgr) {
       console.clear()
 
       let newState: GameState
@@ -148,27 +148,7 @@ export const GameStatePanel: React.FC<GameStateProps> = ({ logout, sendMessage, 
 
   const doUnsubscribe = (): void => {
     console.clear()
-    if (!xClient) 
-      return
-
-    // clear subscriptions
-    const opts = {
-    }
-    xClient.getSubscriptions(pubJid, opts).then((subs:PubsubSubscriptions) => {
-      console.log('got subscriptions', subs)
-      const doUnsub = (xClient && subs.items && subs.items.length) ? subs.items.map((item: PubsubSubscription) => {
-        const opts: XMPP.PubsubUnsubscribeOptions = {
-          subid: (item as PubsubSubscription).subid as string,
-          node: item.node as string
-        }
-        return xClient.unsubscribeFromNode(pubJid, opts)
-      }) : []
-      Promise.all(doUnsub).then((res) => {
-        console.log('unsubscribed', res)
-      }).catch((err: unknown) => {
-        console.error('Error unsubscribing', err)
-      })
-    })
+    stanzaMgr.unsubscribeAll()
   }
 
   const tmpSendMessage = (): void => {
@@ -320,7 +300,7 @@ export const GameStatePanel: React.FC<GameStateProps> = ({ logout, sendMessage, 
       <ButtonGroup orientation='horizontal'>
       <Button style={{marginRight:'10px'}}  variant='contained' onClick={() => logout()}>Logout</Button>
       <Button variant='contained' onClick={() => setShowFeedback(true)}>Feedback</Button>
-      <Button variant='contained' onClick={() => { tmpSendMessage() }}>[debug]]</Button>
+      <Button variant='contained' onClick={() => { tmpSendMessage() }}>[debug]</Button>
       <Button variant='contained' onClick={() => { doUnsubscribe() }}>[unsub]]</Button>
       </ButtonGroup>
       { isGameControl && <ButtonGroup style={{marginTop:'10px'}}>

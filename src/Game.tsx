@@ -58,7 +58,7 @@ const onlyLastForce = (forces: ForceDetails[]): ForceDetails[] => {
 }
 
 export const Game: React.FC<GameProps> = ({ setPlayerState, setGameState, setThemeOptions, setOldMessages, baseTheme }: GameProps) => {
-  const {resourceName, xClient, myRooms, oldMessages, roomsTheme, stanzaMgr, vCard
+  const {xClient, myRooms, oldMessages, roomsTheme, stanzaMgr, vCard
    } = useContext(PlayerContext) as PlayerContextInfo
   const [trimmedRooms, setTrimmedRooms] = useState<RoomDetails[]>([]);
   const [newMessage, setNewMessage] = useState<XMPP.Stanzas.Forward | undefined>();
@@ -266,7 +266,7 @@ useEffect(() => {
   }
 }, [vCard])
 
-/** join my rooms */
+/** try to get my force details */
 useEffect(() => {
   if (forceId && stanzaMgr) {
     stanzaMgr.subscribeToNode(FORCE_NODE + forceId, (msg) => {
@@ -286,17 +286,7 @@ useEffect(() => {
     myRooms.forEach((room) => {
       // enter this room
       if (room && room.jid) {
-        const roomPresence: XMPP.Stanzas.MUCPresence = {
-          muc: {
-            type: 'join',
-            history:  {
-              maxStanzas: 20
-            }
-          }
-        }
-        xClient.joinRoom(room.jid, resourceName, roomPresence).catch((err: unknown) => {
-          console.log('Failed to join room', room, err)
-        })  
+        stanzaMgr.joinRoom(room.jid)
       }  
     })
     // console.log('trimmed rooms', trimmed, showHidden)
@@ -309,14 +299,14 @@ const handleLogout = useCallback(() => {
   console.clear()
   // leave rooms
     if (xClient && myRooms !== null) {
-      const rooms = myRooms.map(room => xClient.leaveRoom(room.jid || 'unknown'))
+      const rooms = myRooms.map(room => stanzaMgr.leaveRoom(room.jid || 'unknown'))
       Promise.all(rooms).then(() => {
         return stanzaMgr?.unsubscribeAll()
         }).catch((err: {pubsub: {unsubscribe: { node: string}}}) => {
           console.log('unsub err', err)
           console.log('trouble unsubscribing from node', err.pubsub.unsubscribe.node, err)
         }).finally(() => {
-          xClient.disconnect()
+          stanzaMgr.disconnect()
           setPlayerState(null)
       })
     }

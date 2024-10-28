@@ -1,7 +1,7 @@
 import * as XMPP from 'stanza';
 import { PlayerContextInfo, RoomDetails } from '../App';
 import { SubsManager } from './SubscriptionManager';
-import { JSONItem } from 'stanza/protocol';
+import { JSONItem, Message, ReceivedPresence } from 'stanza/protocol';
 
 /** class that handles subscriptions to pub-sub nodes, supporting callbacks
 * for when those documents change
@@ -30,8 +30,14 @@ export class StanzaManager {
   subscribeToNode(node: string, callback: <T>(msg: T) => void): void {
     this.subsMgr?.subscribeToNode(node, callback)
   }
+  disconnect(): void { 
+    this.client.disconnect()
+  }
   async unsubscribeAll(): Promise<XMPP.Stanzas.PubsubSubscription[] | undefined> {
     return this.subsMgr?.unsubscribeAll()
+  }
+  sendMessage(message: Message): string {
+    return this.client.sendMessage(message)
   }
   async config(): Promise<PlayerContextInfo | null> {
     if (this.client) {
@@ -109,7 +115,23 @@ export class StanzaManager {
       throw new Error('No client')
     }
   }
-  async createNodeIfNecessaryThenPublish ( node: string,
+  joinRoom(room: string): void {
+    const roomPresence: XMPP.Stanzas.MUCPresence = {
+      muc: {
+        type: 'join',
+        history:  {
+          maxStanzas: 20
+        }
+      }
+    }
+    this.client.joinRoom(room, this.fullJid, roomPresence).catch((err: unknown) => {
+      console.log('Failed to join room', room, err)
+    })  
+  }
+  async leaveRoom(room: string): Promise<ReceivedPresence> {
+    return this.client.leaveRoom(room)
+  }
+  async createNodeIfNecessaryThenPublish (node: string,
     description: string, jsonItem: JSONItem, allVersions = false
   ): Promise<void> {
     // check if node exists
