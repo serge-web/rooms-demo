@@ -84,6 +84,8 @@ export class SubsManager {
           } else {
             console.error('Failed to subscribe to node:', node, err)
           }
+        }).then(() => {
+          return 'done'
         })  
       })
     }

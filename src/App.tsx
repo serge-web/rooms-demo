@@ -4,6 +4,7 @@ import './App.css'
 import Login from './Login'
 import  { Game, GameState } from './Game'
 import * as XMPP from 'stanza';
+import { StanzaManager } from './helpers/StanzaManager';
 
 export interface RoomDetails {
   jid: string
@@ -14,7 +15,7 @@ export interface RoomDetails {
 export interface PlayerContextInfo {
   domain: string
   fullJid: string
-  vCard: XMPP.Stanzas.VCardTemp
+  vCard: XMPP.Stanzas.VCardTemp | undefined
   jid: string
   resourceName: string
   xClient: XMPP.Agent
@@ -23,6 +24,7 @@ export interface PlayerContextInfo {
   myRooms: RoomDetails[]
   oldMessages: XMPP.Stanzas.Forward[]
   roomsTheme: Theme | undefined
+  stanzaMgr: StanzaManager
 }
 
 export const PlayerContext = createContext<PlayerContextInfo | null>(null)

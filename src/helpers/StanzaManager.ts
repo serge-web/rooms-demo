@@ -1,5 +1,6 @@
 import * as XMPP from 'stanza';
 import { PlayerContextInfo, RoomDetails } from '../App';
+import { SubsManager } from './SubscriptionManager';
 
 /** class that handles subscriptions to pub-sub nodes, supporting callbacks
 * for when those documents change
@@ -12,6 +13,7 @@ export class StanzaManager {
   myRooms: RoomDetails[] = []
   wargame: string = ''
   vCard: XMPP.Stanzas.VCardTemp | undefined = undefined
+  subsMgr: SubsManager | undefined = undefined
   print() {
     console.log('mucJid', this.mucJid)
     console.log('pubJid', this.pubJid)
@@ -24,77 +26,88 @@ export class StanzaManager {
     this.fullJid = wargame + '/' + username
     this.wargame = wargame
   }
-  async config(setPlayerState: (state: PlayerContextInfo | null) => void) {
-    console.clear()
+  subscribeToNode(node: string, callback: <T>(msg: T) => void): void {
+    this.subsMgr?.subscribeToNode(node, callback)
+  }
+  async unsubscribeAll(): Promise<XMPP.Stanzas.PubsubSubscription[]> {
+    return this.unsubscribeAll()
+  }
+  
+  config(): PlayerContextInfo | null {
     if (this.client) {
       console.log('congiguring stanza manager')
       let roomIds: string[] = []
       let roomNames: string[]
-      
-      // discover the services for this client
-      this.client.getDiscoItems(this.wargame)
-      .then((services) => {
+      const state: Partial<PlayerContextInfo> = { }
+      const serviceJids: Array<string> = []
+      const promises: Promise<XMPP.Stanzas.DiscoInfoResult>[] = []
+      this.client.getDiscoItems(this.wargame).then((services) => {
         // get the capabilities
-        const serviceJids = services.items.map((item) => item.jid)
-        const promises = services.items.map((item) => this.client.getDiscoInfo(item.jid))
+        serviceJids.push(... services.items.map((item) => item.jid as string))
+        promises.push(... services.items.map((item) => this.client.getDiscoInfo(item.jid)))
+      }).then(() => {
         Promise.all(promises).then((capabilities) => {
           capabilities.forEach((capability, index) => {
             // console.log('capability', capability)
             const jid = serviceJids[index]
             if(capability.features.find((feature) => feature === 'http://jabber.org/protocol/muc')) { 
               this.mucJid = jid as string
+              state.mucJid = jid
             }
             if(capability.features.find((feature) => feature === 'http://jabber.org/protocol/pubsub')) { 
               this.pubJid = jid as string
+              state.pubJid = jid
+              this.subsMgr = new SubsManager(this.client, this.pubJid)
             }
           })
-        }).then(() => {
-          return this.client.getDiscoItems(this.mucJid) 
-        }).then((rooms) => {
-          return rooms.items
-        }).then((rooms) => {
-          console.log('SETTING player state')
-          roomIds = rooms.map((room) => room.jid || '')
-          roomNames = rooms.map((room) => room.name || '')
-          const queryRooms = rooms.map((room) => this.client.getDiscoInfo(room.jid || ''))
-          return Promise.all(queryRooms)
-        }).then(roomConfigs => {
-          // collate room names and descriptions
-          this.myRooms = roomConfigs.map((config, index):RoomDetails => {
-            const firstExtension = config?.extensions[0]
-            const desc = firstExtension?.fields?.find((field) => field.label === 'Description')?.value || 'Unknown'
-            return {
-              jid: roomIds[index],
-              name: roomNames[index],
-              description: desc as string
-            }
-          })
-          console.log('setting  rooms', this.myRooms)
-        }).then(() => {
-          return this.client.getVCard(this.fullJid)
-        }).then((vCard) => {
-          this.vCard = vCard
-        }).then(() => {
-          const player: Partial<PlayerContextInfo> = {
-            vCard: this.vCard,
-            myRooms: this.myRooms
-
-            // domain: string
-            // fullJid: string
-            // jid: string
-            // resourceName: string
-            // xClient: XMPP.Agent
-            // pubJid: string
-            // mucJid: string
-            // myRooms: RoomDetails[]
-            // gameState: GameState | null
-            // oldMessages: XMPP.Stanzas.Forward[]
-            // roomsTheme: Theme | undefined
-
-          }
-          setPlayerState(player as PlayerContextInfo)
         })
+      }).then(() => {
+        return this.client.getDiscoItems(this.mucJid) 
+      }).then((rooms) => {
+        return rooms.items
+      }).then((rooms) => {
+        console.log('SETTING player state')
+        roomIds = rooms.map((room) => room.jid || '')
+        roomNames = rooms.map((room) => room.name || '')
+        const queryRooms = rooms.map((room) => this.client.getDiscoInfo(room.jid || ''))
+        return Promise.all(queryRooms)
+      }).then(roomConfigs => {
+        // collate room names and descriptions
+        state.myRooms = roomConfigs.map((config, index):RoomDetails => {
+          const firstExtension = config?.extensions[0]
+          const desc = firstExtension?.fields?.find((field) => field.label === 'Description')?.value || 'Unknown'
+          return {
+            jid: roomIds[index],
+            name: roomNames[index],
+            description: desc as string
+          }
+        })
+      }).then(() => {
+        return this.client.getVCard(this.fullJid)
+      }).then((vCard) => {
+        state.vCard = vCard
+      }).catch((err) => {
+        console.error('Error in stanza manager', err)
+      }).then(() => {
+        const res: PlayerContextInfo = {
+          domain: this.wargame,
+          fullJid: this.fullJid,
+          jid: this.fullJid,
+          resourceName: this.fullJid,
+          xClient: this.client,
+          pubJid: this.pubJid,
+          mucJid: this.mucJid,
+          myRooms: state.myRooms || [],
+          oldMessages: [],
+          roomsTheme: undefined,
+          vCard: state.vCard || undefined,
+          stanzaMgr: this
+        }
+        return res
       })
+      return null
+    } else {
+      throw new Error('No client')
     }
   }
 }

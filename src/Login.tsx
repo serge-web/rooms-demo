@@ -4,13 +4,9 @@ import * as XMPP from 'stanza';
 import './Login.css';
 import { WelcomePage } from './WelcomePage';
 import { SimpleDialog } from './SimpleDialog';
-import { PlayerContextInfo, RoomDetails } from './App';
+import { PlayerContextInfo } from './App';
 import { useState } from 'react';
-import { GAME_STATE_NODE, GAME_THEME_NODE, ROOMS_THEME_NODE } from './Constants';
-import { createTheme, ThemeOptions } from '@mui/material';
-import { clearSubscriptions } from './helpers/clearSubscriptions';
-import { JSONItem } from 'stanza/protocol';
-import { ThemeDetails } from './Game';
+import { ThemeOptions } from '@mui/material';
 import { StanzaManager } from './helpers/StanzaManager';
 
 
@@ -50,95 +46,20 @@ export const Login: React.FC<LoginProps> = ({ setPlayerState, welcomeTitle, welc
     
     client.on('session:started', () => {
       console.log('Logged in. Setting xClient')
-      const jid = username + '@' + selectedWargame;
-      const context: Partial<PlayerContextInfo> = {
-      }
 
       const stanzaMgr = new StanzaManager(client, selectedWargame, username)
       console.log('mgr', stanzaMgr)
-      stanzaMgr.config(setPlayerState).then(() => {
-        stanzaMgr.print()
-      })
-      return
 
-      // find out server capabilities
-      client.getDiscoItems(selectedWargame).then((services) => {
-        // get the capabilities
-        const serviceJids = services.items.map((item) => item.jid)
-        const promises = services.items.map((item) => client.getDiscoInfo(item.jid))
-        Promise.all(promises).then((capabilities) => {
-          capabilities.forEach((capability, index) => {
-            // console.log('capability', capability)
-            const jid = serviceJids[index]
-            if(capability.features.find((feature) => feature === 'http://jabber.org/protocol/muc')) { 
-              context.mucJid = jid
-            }
-            if(capability.features.find((feature) => feature === 'http://jabber.org/protocol/pubsub')) { 
-              context.pubJid = jid
-            }
-          })
-        }).then(() => {
-          // clear any existing theme or game subscriptions
-          return clearSubscriptions(client, context.pubJid || '', GAME_THEME_NODE)
-        }).then(() => {
-          // clear any existing theme or game subscriptions
-          return clearSubscriptions(client, context.pubJid || '', GAME_STATE_NODE)
-        }).then(() => {
-          // see if there is a rooms theme
-           return client.getItems(context.pubJid || '', ROOMS_THEME_NODE)
-          }).then((items) => {
-            if (items && items.items && items.items.length > 0) {
-              const jsonItem = items.items[0]
-              if (jsonItem && jsonItem.content) {
-                const json = jsonItem.content  as JSONItem
-                const themeOptions = JSON.parse(json.json) as ThemeDetails
-                context.roomsTheme = createTheme(themeOptions.data)
-              }
-            }
-          }).catch((err) => {
-            console.log('Failed to get rooms theme', err)
-          }).then(() => {
-            // get room configs
-          if (context.mucJid) {
-            client.getDiscoItems(context.mucJid).then((rooms) => {
-              return rooms.items
-            }).then((rooms) => {
-              console.log('SETTING player state', context.myRooms)
-              const roomIds = rooms.map((room) => room.jid || '')
-              const roomNames = rooms.map((room) => room.name || '')
-              const queryRooms = rooms.map((room) => client.getDiscoInfo(room.jid || ''))
-              Promise.all(queryRooms).then((roomConfigs) => {
-                
-                // collate room names and descriptions
-                context.myRooms = roomConfigs.map((config, index):RoomDetails => {
-                  const firstExtension = config?.extensions[0]
-                  const desc = firstExtension?.fields?.find((field) => field.label === 'Description')?.value || 'Unknown'
-                  return {
-                    jid: roomIds[index],
-                    name: roomNames[index],
-                    description: desc as string
-                  }
-                })
-              }).then(() => {
-                  setPlayerState({
-                    domain: selectedWargame,
-                    fullJid: jid + '/' + username,
-                    jid: jid,
-                    resourceName: username,
-                    xClient: client,
-                    vCard: {},
-                    pubJid: context.pubJid || '',
-                    mucJid: context.mucJid || '',
-                    myRooms: context.myRooms || [],
-                    roomsTheme: context.roomsTheme,
-                    oldMessages: []})
-                  }) 
-                })
-              }
-            })
-          })
-        })       
-      
+      const state: PlayerContextInfo | null = stanzaMgr.config()
+      if (state) {
+        setPlayerState(state)
+        stanzaMgr.print()
+        console.log('state', state)  
+      }
+    })
+
+
+
       client.on('auth:failed', () => {
         setDialogTitle('Login')
         setDialog('Authorisation failed')
