@@ -12,7 +12,7 @@ import AdsClickIcon from '@mui/icons-material/AdsClick';
 import React from 'react';
 import Person3Icon from '@mui/icons-material/Person3';
 import { ADMIN_CHANNEL, FEEDBACK_CHANNEL, GAME_STATE_NODE, GAME_THEME_NODE, ROOMS_THEME_NODE } from './Constants';
-import { PlayerContext, PlayerContextInfo, RoomDetails } from './App';
+import { GameContext, PlayerContext, PlayerContextInfo, RoomDetails } from './App';
 import { JSONItem, PubsubSubscription, PubsubSubscriptions } from 'stanza/protocol';
 import { NS_JSON_0 } from 'stanza/Namespaces';
 import { createNodeIfNecessaryThenPublish } from './helpers/createThenPublishNode';
@@ -33,7 +33,8 @@ export default interface GameStateProps {
 
 export const GameStatePanel: React.FC<GameStateProps> = ({ logout, sendMessage, showHidden, setShowHidden,  properName, isFeedbackObserver, isGameControl, newMessage, forceDetails, vCard
  }: GameStateProps) => {
-  const {fullJid, domain, myRooms, xClient, gameState, pubJid} = useContext(PlayerContext) as PlayerContextInfo
+  const {fullJid, domain, myRooms, xClient, pubJid} = useContext(PlayerContext) as PlayerContextInfo
+  const gameState = useContext(GameContext) as GameState
 
   const [adminDetails, setAdminDetails] = useState<RoomDetails | undefined>(undefined);
   const [feedbackDetails, setFeedbackDetails] = useState<RoomDetails | undefined>(undefined);

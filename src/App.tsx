@@ -14,18 +14,20 @@ export interface RoomDetails {
 export interface PlayerContextInfo {
   domain: string
   fullJid: string
+  vCard: XMPP.Stanzas.VCardTemp
   jid: string
   resourceName: string
   xClient: XMPP.Agent
   pubJid: string
   mucJid: string
   myRooms: RoomDetails[]
-  gameState: GameState | null
   oldMessages: XMPP.Stanzas.Forward[]
   roomsTheme: Theme | undefined
 }
 
 export const PlayerContext = createContext<PlayerContextInfo | null>(null)
+
+export const GameContext = createContext<GameState | null>(null)
 
 const baseTheme: Theme = createTheme({
   palette: {
@@ -42,6 +44,7 @@ const baseTheme: Theme = createTheme({
 function App() {
 
   const [playerState, setPlayerState] = useState<PlayerContextInfo | null>(null)
+  const [gameState, setGameState] = useState<GameState | null>(null)
   const [theme, setTheme] = useState<Theme | null>(null)
 
   const welcomeTitle = 'War Rooms'
@@ -60,22 +63,22 @@ function App() {
     }
   }, [playerState]);
 
-  const setGameState = useCallback((gameState: GameState) => {
-    const existingGameState = playerState?.gameState
-    const existingJSON = JSON.stringify(existingGameState)
-    const newJSON = JSON.stringify(gameState)
+  const updateGameState = useCallback((newGameState: GameState) => {
+    const existingJSON = JSON.stringify(gameState)
+    const newJSON = JSON.stringify(newGameState)
     if (existingJSON !== newJSON) {
-      const newState = {...playerState, gameState} as PlayerContextInfo
-      setPlayerState(newState)
+      setGameState(newGameState)
     }
-  }, [playerState]);
+  }, [gameState]);
 
   return (
     <ThemeProvider theme={theme || baseTheme}>
       { playerState && <PlayerContext.Provider value={playerState}>
-        <Game setPlayerState={setPlayerState} setGameState={setGameState} baseTheme={theme || baseTheme}
+          <GameContext.Provider value={gameState}>
+            <Game setPlayerState={setPlayerState} setGameState={updateGameState} baseTheme={theme || baseTheme}
                 setThemeOptions={setThemeOptions} setOldMessages={setOldMessages} />
-          </PlayerContext.Provider> }
+          </GameContext.Provider>
+        </PlayerContext.Provider> }
       { !playerState && <Login welcomeTitle={welcomeTitle} setThemeOptions={setThemeOptions} setPlayerState={setPlayerState}
       welcomeMsg={welcomeMessage} /> }    
     </ThemeProvider>

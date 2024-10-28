@@ -11,6 +11,8 @@ import { createTheme, ThemeOptions } from '@mui/material';
 import { clearSubscriptions } from './helpers/clearSubscriptions';
 import { JSONItem } from 'stanza/protocol';
 import { ThemeDetails } from './Game';
+import { StanzaManager } from './helpers/StanzaManager';
+
 
 const wargames = ['localhost'];
 
@@ -51,6 +53,14 @@ export const Login: React.FC<LoginProps> = ({ setPlayerState, welcomeTitle, welc
       const jid = username + '@' + selectedWargame;
       const context: Partial<PlayerContextInfo> = {
       }
+
+      const stanzaMgr = new StanzaManager(client, selectedWargame, username)
+      console.log('mgr', stanzaMgr)
+      stanzaMgr.config(setPlayerState).then(() => {
+        stanzaMgr.print()
+      })
+      return
+
       // find out server capabilities
       client.getDiscoItems(selectedWargame).then((services) => {
         // get the capabilities
@@ -116,12 +126,12 @@ export const Login: React.FC<LoginProps> = ({ setPlayerState, welcomeTitle, welc
                     jid: jid,
                     resourceName: username,
                     xClient: client,
+                    vCard: {},
                     pubJid: context.pubJid || '',
                     mucJid: context.mucJid || '',
                     myRooms: context.myRooms || [],
                     roomsTheme: context.roomsTheme,
-                    oldMessages: [],
-                    gameState: null})
+                    oldMessages: []})
                   }) 
                 })
               }
