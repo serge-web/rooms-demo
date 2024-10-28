@@ -8,8 +8,6 @@ import { SimpleDialog } from './SimpleDialog';
 import { MUCAllRooms } from './MUCAllRooms';
 import { PlayerContext, PlayerContextInfo, RoomDetails } from './App';
 import { Theme, ThemeOptions, ThemeProvider } from '@mui/material';
-import { SubsManager } from './helpers/SubscriptionManager';
-import { VCardTemp } from 'stanza/protocol';
 
 export interface GamePresence {
   jid: string
@@ -60,13 +58,11 @@ const onlyLastForce = (forces: ForceDetails[]): ForceDetails[] => {
 }
 
 export const Game: React.FC<GameProps> = ({ setPlayerState, setGameState, setThemeOptions, setOldMessages, baseTheme }: GameProps) => {
-  const {jid, resourceName, xClient, myRooms, pubJid, oldMessages, roomsTheme
+  const {xClient, myRooms, oldMessages, roomsTheme, stanzaMgr, vCard
    } = useContext(PlayerContext) as PlayerContextInfo
   const [trimmedRooms, setTrimmedRooms] = useState<RoomDetails[]>([]);
   const [newMessage, setNewMessage] = useState<XMPP.Stanzas.Forward | undefined>();
   const [showHidden, setShowHidden] = useState(false);
-  // null for when no vCard found
-  const [vCard, setVCard] = useState<XMPP.Stanzas.VCardTemp | null>(null);
   const [isGameControl, setIsGameControl] = useState<boolean>(false);
   const [isFeedbackObserver, setIsFeedbackObserver] = useState<boolean>(false);
   const [properName, setProperName] = useState<string>('');
@@ -77,8 +73,6 @@ export const Game: React.FC<GameProps> = ({ setPlayerState, setGameState, setThe
   const [dialog, setDialog] = useState<string | null>(null);
   const [dialogTitle, setDialogTitle] = useState<string>('');
   
-  const [subsManager, setSubsManager] = useState<SubsManager | null>(null)
-
   const [pendingOldMessages] = useState<XMPP.Stanzas.Forward[]>([])
 
   // TODO: this flag prevents us setting up the client multiple times
@@ -99,9 +93,6 @@ export const Game: React.FC<GameProps> = ({ setPlayerState, setGameState, setThe
   useEffect(() => {
     if (xClient && clientDone.current === undefined) {
       clientDone.current = true
-
-      // set up subscriptions manager
-      setSubsManager(new SubsManager(xClient, pubJid))
 
       // xClient.on('raw:*', (direction, data) => {
       //   console.log('== ', new Date().toISOString(), direction, data)
@@ -212,21 +203,6 @@ export const Game: React.FC<GameProps> = ({ setPlayerState, setGameState, setThe
       }).catch((err: unknown) => {
         console.log('Failed to enable carbons', err)
       })
-      
-      // general presence announcement
-      xClient.sendPresence()
-
-      // get my vcard
-      xClient.getVCard(jid).then((vcard: VCardTemp) => {
-        console.log('vCard:', vcard, jid)
-        if (vcard.name || vcard.records) {
-          setVCard(vcard)
-        } else {
-          console.warn('Empty vcard received', vcard)
-        }
-      }).catch(() => {
-        console.log('No vcard for', jid)
-      })
   }
   
   // note: we ignore the exhaustive-deps warning here because#
@@ -237,18 +213,18 @@ export const Game: React.FC<GameProps> = ({ setPlayerState, setGameState, setThe
 
 // register for pubsub node updates
 useEffect(() => {
-  if (subsManager) {
-    subsManager.subscribeToNode(GAME_STATE_NODE, (msg) => {
+  if (stanzaMgr) {
+    stanzaMgr.subscribeToNode(GAME_STATE_NODE, (msg) => {
       const gameState = msg as GameState
       setGameState(gameState)
     })
 
-    subsManager.subscribeToNode(GAME_THEME_NODE, (msg) => {
+    stanzaMgr.subscribeToNode(GAME_THEME_NODE, (msg) => {
       const gameTheme = msg as ThemeOptions
       setThemeOptions(gameTheme)
     })
   }
-}, [subsManager, setGameState, setThemeOptions])
+}, [stanzaMgr, setGameState, setThemeOptions])
 
 // update user flags from vCard categories
 useEffect(() => {
@@ -287,15 +263,15 @@ useEffect(() => {
   }
 }, [vCard])
 
-/** join my rooms */
+/** try to get my force details */
 useEffect(() => {
-  if (forceId && subsManager) {
-    subsManager.subscribeToNode(FORCE_NODE + forceId, (msg) => {
+  if (forceId && stanzaMgr) {
+    stanzaMgr.subscribeToNode(FORCE_NODE + forceId, (msg) => {
       const forceDetails = msg as ForceDetails
       setForce(forceDetails)
     })  
   }
-}, [forceId, subsManager, setForce])
+}, [forceId, stanzaMgr, setForce])
 
 /** join my rooms */
 useEffect(() => {
@@ -307,17 +283,7 @@ useEffect(() => {
     myRooms.forEach((room) => {
       // enter this room
       if (room && room.jid) {
-        const roomPresence: XMPP.Stanzas.MUCPresence = {
-          muc: {
-            type: 'join',
-            history:  {
-              maxStanzas: 20
-            }
-          }
-        }
-        xClient.joinRoom(room.jid, resourceName, roomPresence).catch((err: unknown) => {
-          console.log('Failed to join room', room, err)
-        })  
+        stanzaMgr.joinRoom(room.jid)
       }  
     })
     // console.log('trimmed rooms', trimmed, showHidden)
@@ -328,22 +294,14 @@ useEffect(() => {
 
 const handleLogout = useCallback(() => {
   console.clear()
-  // leave rooms
-    if (xClient && myRooms !== null) {
-      const rooms = myRooms.map(room => xClient.leaveRoom(room.jid || 'unknown'))
-      Promise.all(rooms).then(() => {
-        return subsManager?.unsubscribeAll()
-        }).catch((err: {pubsub: {unsubscribe: { node: string}}}) => {
-          console.log('trouble unsubscribing from node', err.pubsub.unsubscribe.node, err)
-        }).finally(() => {
-          xClient.disconnect()
-          setPlayerState(null)
-      })
-    }
-}, [myRooms, xClient, subsManager, setPlayerState])
+  stanzaMgr.disconnect().then((res) => {
+    console.log('Logged out', res)
+    setPlayerState(null)
+  })
+}, [stanzaMgr, setPlayerState])
 
 const sendMessage = (msg: XMPP.Stanzas.Message): string | undefined => {
-  return xClient?.sendMessage(msg)
+  return stanzaMgr.sendMessage(msg)
 }
 
 const containerStyles:  React.CSSProperties = {

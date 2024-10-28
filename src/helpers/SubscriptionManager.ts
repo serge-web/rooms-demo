@@ -1,8 +1,6 @@
 import * as XMPP from 'stanza';
 import { StanzaErrorCondition } from 'stanza/Constants';
-import { JSONItem, PubsubEventItems, PubsubItem, StanzaError } from 'stanza/protocol';
-import { clearSubscriptions } from './clearSubscriptions';
-
+import { JSONItem, PubsubEventItems, PubsubItem, PubsubSubscription, PubsubSubscriptionOptions, PubsubSubscriptions, StanzaError } from 'stanza/protocol';
 
 export type SubsCallback<t> = (msg: t) => void
 
@@ -57,6 +55,32 @@ export class SubsManager {
       })  
     }
   }
+  async clearSubscriptions(xClient: Readonly<XMPP.Agent>, pubJid: string, node: string): Promise<void> {
+    if (!xClient)
+      throw new Error('No client')
+    const opts = {
+      node: node
+    }
+    await xClient.getSubscriptions(pubJid, opts).then((subs: PubsubSubscriptions) => {
+      if (subs?.items) {
+        const unsubPromises = (subs.items) ? 
+          subs.items.map((item: PubsubSubscription): Promise<PubsubSubscriptionOptions> => {
+          const opts: XMPP.PubsubUnsubscribeOptions = {
+            subid: item.subid,
+            node: node
+          }
+          return xClient.unsubscribeFromNode(pubJid, opts)
+        }) : []
+        return Promise.all(unsubPromises).catch(() => {
+          // ignore this error, server reporting invalid subId, after
+          // it's server that provided the subId
+          // console.log('Error unsubscribing 2', err, node)
+        })  
+      }
+    }).catch((err: unknown) => {
+      console.warn('trouble getting subscriptions', node, err)
+    })
+  }
   subscribeToNode(node: string, callback: <T>(msg: T) => void): void {
     if (!this.xClient)
       return
@@ -65,7 +89,7 @@ export class SubsManager {
     if (!this.subs.some((sub) => sub.node === node)) {
 
       // clear any existing subscriptions
-      clearSubscriptions(this.xClient, this.pubJid, node).then(() => {
+      this.clearSubscriptions(this.xClient, this.pubJid, node).then(() => {
         const sub: NodeSubscription = {
           node,
           subId: PENDING,
@@ -84,6 +108,8 @@ export class SubsManager {
           } else {
             console.error('Failed to subscribe to node:', node, err)
           }
+        }).then(() => {
+          return 'done'
         })  
       })
     }

@@ -1,7 +1,7 @@
 // MUCMessage.tsx
 import { Box, Button, ButtonGroup, Card, CardHeader, Tab, Tabs, Tooltip, Typography  } from '@mui/material';
 import './GameStatePanel.css';
-import { GameState, ForceDetails, ThemeDetails } from './Game';
+import { GameState, ForceDetails } from './Game';
 import * as XMPP from 'stanza';
 import { useState, useEffect, ReactElement, SyntheticEvent, useContext } from 'react';
 import { MUCRoom } from './MUCRoom';
@@ -11,12 +11,10 @@ import Groups2Icon from '@mui/icons-material/Groups2';
 import AdsClickIcon from '@mui/icons-material/AdsClick';
 import React from 'react';
 import Person3Icon from '@mui/icons-material/Person3';
-import { ADMIN_CHANNEL, FEEDBACK_CHANNEL, GAME_STATE_NODE, GAME_THEME_NODE, ROOMS_THEME_NODE } from './Constants';
-import { PlayerContext, PlayerContextInfo, RoomDetails } from './App';
-import { JSONItem, PubsubSubscription, PubsubSubscriptions } from 'stanza/protocol';
+import { ADMIN_CHANNEL, FEEDBACK_CHANNEL, GAME_STATE_NODE, GAME_THEME_NODE } from './Constants';
+import { GameContext, PlayerContext, PlayerContextInfo, RoomDetails } from './App';
+import { JSONItem } from 'stanza/protocol';
 import { NS_JSON_0 } from 'stanza/Namespaces';
-import { createNodeIfNecessaryThenPublish } from './helpers/createThenPublishNode';
-import { subscribeIfNecessary } from './helpers/subscribeIfNecessary';
 
 export default interface GameStateProps {
   logout: () => void
@@ -33,7 +31,8 @@ export default interface GameStateProps {
 
 export const GameStatePanel: React.FC<GameStateProps> = ({ logout, sendMessage, showHidden, setShowHidden,  properName, isFeedbackObserver, isGameControl, newMessage, forceDetails, vCard
  }: GameStateProps) => {
-  const {fullJid, domain, myRooms, xClient, gameState, pubJid} = useContext(PlayerContext) as PlayerContextInfo
+  const {fullJid, domain, myRooms, stanzaMgr} = useContext(PlayerContext) as PlayerContextInfo
+  const gameState = useContext(GameContext) as GameState
 
   const [adminDetails, setAdminDetails] = useState<RoomDetails | undefined>(undefined);
   const [feedbackDetails, setFeedbackDetails] = useState<RoomDetails | undefined>(undefined);
@@ -84,7 +83,7 @@ export const GameStatePanel: React.FC<GameStateProps> = ({ logout, sendMessage, 
   }, [forceDetails])
 
   const stepForward = () => {
-    if (xClient) {
+    if (stanzaMgr) {
       console.clear()
 
       let newState: GameState
@@ -111,9 +110,9 @@ export const GameStatePanel: React.FC<GameStateProps> = ({ logout, sendMessage, 
         json: stateJSON
       }
   
-      createNodeIfNecessaryThenPublish(xClient, pubJid, GAME_STATE_NODE, 'Game state', 
+      stanzaMgr.createNodeIfNecessaryThenPublish(GAME_STATE_NODE, 'Game state', 
         jsonItem, true).catch((err: unknown) => {
-        console.error('Error publishing game state', err, !!subscribeIfNecessary)
+        console.error('Error publishing game state', err)
       })
     }
   }
@@ -145,31 +144,6 @@ export const GameStatePanel: React.FC<GameStateProps> = ({ logout, sendMessage, 
 
   const tabStyle: React.CSSProperties = {
     minHeight: '40px'
-  }
-
-  const doUnsubscribe = (): void => {
-    console.clear()
-    if (!xClient) 
-      return
-
-    // clear subscriptions
-    const opts = {
-    }
-    xClient.getSubscriptions(pubJid, opts).then((subs:PubsubSubscriptions) => {
-      console.log('got subscriptions', subs)
-      const doUnsub = (xClient && subs.items && subs.items.length) ? subs.items.map((item: PubsubSubscription) => {
-        const opts: XMPP.PubsubUnsubscribeOptions = {
-          subid: (item as PubsubSubscription).subid as string,
-          node: item.node as string
-        }
-        return xClient.unsubscribeFromNode(pubJid, opts)
-      }) : []
-      Promise.all(doUnsub).then((res) => {
-        console.log('unsubscribed', res)
-      }).catch((err: unknown) => {
-        console.error('Error unsubscribing', err)
-      })
-    })
   }
 
   const tmpSendMessage = (): void => {
@@ -206,10 +180,8 @@ export const GameStatePanel: React.FC<GameStateProps> = ({ logout, sendMessage, 
     // })
 
     // xClient.getDefaultSubscriptionOptions(pubJid).then((items) => {
-    //   console.log('Got disco', items, jid, !!subscribeIfNecessary)
+    //   console.log('Got disco', items, jid)
     // })
-
-    // subscribeIfNecessary(xClient, pubJid, GAME_STATE_NODE, jid)
 
     // console.log('about to get item', jid, GAME_STATE_NODE, !!pubJid)
     // xClient.getNodeConfig(pubJid, GAME_STATE_NODE).then((info) => {
@@ -251,22 +223,22 @@ export const GameStatePanel: React.FC<GameStateProps> = ({ logout, sendMessage, 
     //   console.error('Error publishing game state 2', err)
     // })
 
-    const theme: ThemeDetails = {
-      type: 'Theme',
-      data: {
-        palette: {
-          primary: {
-            main: "#fa2461"
-          },
-          secondary: {
-            main: "#494c7d"
-          }
-        },
-        typography: {
-          fontFamily: 'Georgia',
-        }
-      }
-    }
+    // const theme: ThemeDetails = {
+    //   type: 'Theme',
+    //   data: {
+    //     palette: {
+    //       primary: {
+    //         main: "#fa2461"
+    //       },
+    //       secondary: {
+    //         main: "#494c7d"
+    //       }
+    //     },
+    //     typography: {
+    //       fontFamily: 'Georgia',
+    //     }
+    //   }
+    // }
     // const blueForce: ForceDetails = {
     //   type: FORCE_DETAILS,
     //   id: 'blue',
@@ -274,16 +246,15 @@ export const GameStatePanel: React.FC<GameStateProps> = ({ logout, sendMessage, 
     //   color: '#0000ff',
     //   objective: 'Capture the flag'
     // }
-
-    const themeJSON = JSON.stringify(theme)
-    const jsonItem: JSONItem = { 
-      itemType: NS_JSON_0,
-      json: themeJSON
-    }
-    createNodeIfNecessaryThenPublish(xClient, pubJid, ROOMS_THEME_NODE, 'Rooms Theme', 
-      jsonItem, true).catch((err: unknown) => {
-      console.error('Error publishing game state', err, !!subscribeIfNecessary)
-    })
+    // const themeJSON = JSON.stringify(theme)
+    // const jsonItem: JSONItem = { 
+    //   itemType: NS_JSON_0,
+    //   json: themeJSON
+    // }
+    // stanzaMgr.createNodeIfNecessaryThenPublish(ROOMS_THEME_NODE, 'Rooms Theme', 
+    //   jsonItem, true).catch((err: unknown) => {
+    //   console.error('Error publishing game state', err)
+    // })
 //    console.log('about to publish theme state', jid, FORCE_NODE + 'blue', jsonItem, pubJid)
 
     // xClient.publish(pubJid, GAME_THEME_NODE, jsonItem).catch((err: unknown) => {
@@ -318,13 +289,12 @@ export const GameStatePanel: React.FC<GameStateProps> = ({ logout, sendMessage, 
   
   return (
     <Card className='out-of-game-feed'>
-      <CardHeader title={<>{userIcon}<Typography component={'span'}>{properName || fullJid.split('@')[0]}
+      <CardHeader title={<>{userIcon}<Typography component={'span'}>{properName || fullJid?.split('@')[0]}
         {vCard && vCard.fullName && (' - ' + vCard.fullName)}</Typography>&nbsp;{objectivesIcon}</>} subheader={'T' + gameState?.gameTurn + ' ' + gameTime} />
       <ButtonGroup orientation='horizontal'>
       <Button style={{marginRight:'10px'}}  variant='contained' onClick={() => logout()}>Logout</Button>
       <Button variant='contained' onClick={() => setShowFeedback(true)}>Feedback</Button>
-      <Button variant='contained' onClick={() => { tmpSendMessage() }}>[debug]]</Button>
-      <Button variant='contained' onClick={() => { doUnsubscribe() }}>[unsub]]</Button>
+      <Button variant='contained' onClick={() => { tmpSendMessage() }}>[debug]</Button>
       </ButtonGroup>
       { isGameControl && <ButtonGroup style={{marginTop:'10px'}}>
         <Button style={{marginRight:'10px'}} variant='contained' onClick={() => stepForward()}>Step</Button>

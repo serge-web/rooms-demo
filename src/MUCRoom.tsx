@@ -34,7 +34,7 @@ export default interface RoomProps {
 
 export const MUCRoom: React.FC<RoomProps> = ({ details, newMessage, height='735px', 
   icon=<MeetingRoomIcon/>, compact, visible=true, showSendButton = true }: RoomProps) => {
-    const {xClient, oldMessages} = useContext(PlayerContext) as PlayerContextInfo
+    const {oldMessages, stanzaMgr, fullJid} = useContext(PlayerContext) as PlayerContextInfo
     
     // const [members, setMembers] = useState<ReactElement>(<span/>);
     const [messages, setMessages] = useState<XMPP.Stanzas.Message[]>([]);
@@ -138,10 +138,10 @@ export const MUCRoom: React.FC<RoomProps> = ({ details, newMessage, height='735p
         to: details.jid,
         type: 'groupchat',
         body: content,
-        from: xClient?.jid || 'unknown',
+        from: fullJid,
         id: new Date().getTime().toString()
       }
-      xClient?.sendMessage(msg)
+      stanzaMgr.sendMessage(msg)
       // console.log('Sent message', msg, res)
     }
     
