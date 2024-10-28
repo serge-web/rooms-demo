@@ -45,11 +45,7 @@ export const Login: React.FC<LoginProps> = ({ setPlayerState, welcomeTitle, welc
     //   })
     
     client.on('session:started', () => {
-      console.log('Logged in. Setting xClient')
-
       const stanzaMgr = new StanzaManager(client, selectedWargame, username)
-      console.log('mgr', stanzaMgr)
-
       stanzaMgr.config().then((state) => {
         if (state) {
           setPlayerState(state)

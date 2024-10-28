@@ -203,9 +203,6 @@ export const Game: React.FC<GameProps> = ({ setPlayerState, setGameState, setThe
       }).catch((err: unknown) => {
         console.log('Failed to enable carbons', err)
       })
-      
-      // general presence announcement
-      xClient.sendPresence()
   }
   
   // note: we ignore the exhaustive-deps warning here because#
@@ -297,23 +294,14 @@ useEffect(() => {
 
 const handleLogout = useCallback(() => {
   console.clear()
-  // leave rooms
-    if (xClient && myRooms !== null) {
-      const rooms = myRooms.map(room => stanzaMgr.leaveRoom(room.jid || 'unknown'))
-      Promise.all(rooms).then(() => {
-        return stanzaMgr?.unsubscribeAll()
-        }).catch((err: {pubsub: {unsubscribe: { node: string}}}) => {
-          console.log('unsub err', err)
-          console.log('trouble unsubscribing from node', err.pubsub.unsubscribe.node, err)
-        }).finally(() => {
-          stanzaMgr.disconnect()
-          setPlayerState(null)
-      })
-    }
-}, [myRooms, xClient, stanzaMgr, setPlayerState])
+  stanzaMgr.disconnect().then((res) => {
+    console.log('Logged out', res)
+    setPlayerState(null)
+  })
+}, [stanzaMgr, setPlayerState])
 
 const sendMessage = (msg: XMPP.Stanzas.Message): string | undefined => {
-  return xClient?.sendMessage(msg)
+  return stanzaMgr.sendMessage(msg)
 }
 
 const containerStyles:  React.CSSProperties = {

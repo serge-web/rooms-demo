@@ -146,11 +146,6 @@ export const GameStatePanel: React.FC<GameStateProps> = ({ logout, sendMessage, 
     minHeight: '40px'
   }
 
-  const doUnsubscribe = (): void => {
-    console.clear()
-    stanzaMgr.unsubscribeAll()
-  }
-
   const tmpSendMessage = (): void => {
     console.log('', !!GAME_THEME_NODE, !!GAME_STATE_NODE)
     console.clear()
@@ -301,7 +296,6 @@ export const GameStatePanel: React.FC<GameStateProps> = ({ logout, sendMessage, 
       <Button style={{marginRight:'10px'}}  variant='contained' onClick={() => logout()}>Logout</Button>
       <Button variant='contained' onClick={() => setShowFeedback(true)}>Feedback</Button>
       <Button variant='contained' onClick={() => { tmpSendMessage() }}>[debug]</Button>
-      <Button variant='contained' onClick={() => { doUnsubscribe() }}>[unsub]]</Button>
       </ButtonGroup>
       { isGameControl && <ButtonGroup style={{marginTop:'10px'}}>
         <Button style={{marginRight:'10px'}} variant='contained' onClick={() => stepForward()}>Step</Button>

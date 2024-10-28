@@ -30,11 +30,15 @@ export class StanzaManager {
   subscribeToNode(node: string, callback: <T>(msg: T) => void): void {
     this.subsMgr?.subscribeToNode(node, callback)
   }
-  disconnect(): void { 
-    this.client.disconnect()
-  }
-  async unsubscribeAll(): Promise<XMPP.Stanzas.PubsubSubscription[] | undefined> {
-    return this.subsMgr?.unsubscribeAll()
+  async disconnect(): Promise<void> { 
+    const promises =this.myRooms.map((room) => this.client.leaveRoom(room.jid))
+    Promise.all(promises).then(() => {
+      return this.subsMgr?.unsubscribeAll()
+    }).catch((err) => {
+      console.error('Error unsubscribing rooms', err)  
+    }).finally(() => {
+      return this.client.disconnect()
+    })
   }
   sendMessage(message: Message): string {
     return this.client.sendMessage(message)
