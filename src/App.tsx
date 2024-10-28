@@ -77,7 +77,7 @@ function App() {
     <ThemeProvider theme={theme || baseTheme}>
       { playerState && <PlayerContext.Provider value={playerState}>
           <GameContext.Provider value={gameState}>
-            <Game setPlayerState={setPlayerState} setGameState={updateGameState} baseTheme={theme || baseTheme}
+            <Game setPlayerState={setPlayerState} setGameState={updateGameState} baseTheme={theme ?? baseTheme}
                 setThemeOptions={setThemeOptions} setOldMessages={setOldMessages} />
           </GameContext.Provider>
         </PlayerContext.Provider> }

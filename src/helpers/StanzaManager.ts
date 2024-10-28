@@ -32,7 +32,7 @@ export class StanzaManager {
   }
   async disconnect(): Promise<void> { 
     const promises =this.myRooms.map((room) => this.client.leaveRoom(room.jid))
-    Promise.all(promises).catch((err) => {
+    Promise.all(promises).catch((err: unknown) => {
       console.error('Error unsubscribing rooms', err)  
     }).then(() => {
       return this.subsMgr?.unsubscribeAll()
@@ -52,10 +52,12 @@ export class StanzaManager {
       const state: Partial<PlayerContextInfo> = { }
       const serviceJids: string[] = []
       const promises: Promise<XMPP.Stanzas.DiscoInfoResult>[] = []
-      return this.client.getDiscoItems(this.wargame).then((services) => {
+      return this.client.getDiscoItems(this.wargame).then((services: DiscoItemsResult) => {
         // get the capabilities
         serviceJids.push(... services.items.map((item) => item.jid as string))
         promises.push(... services.items.map((item) => this.client.getDiscoInfo(item.jid)))
+      }).catch((err) => {
+        console.error('Error getting disco items', err)
       }).then(() => {
         return Promise.all(promises)
       }).then((capabilities: DiscoInfoResult[]) => {
@@ -72,6 +74,8 @@ export class StanzaManager {
             this.subsMgr = new SubsManager(this.client, this.pubJid)
           }
         })
+      }).catch((err) => {
+        console.error('Error getting jids', err)
       }).then(() => {
         return this.client.getDiscoItems(this.mucJid) 
       }).then((rooms: DiscoItemsResult) => {
