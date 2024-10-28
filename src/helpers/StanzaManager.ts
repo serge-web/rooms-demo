@@ -32,10 +32,12 @@ export class StanzaManager {
   }
   async disconnect(): Promise<void> { 
     const promises =this.myRooms.map((room) => this.client.leaveRoom(room.jid))
-    Promise.all(promises).then(() => {
+    Promise.all(promises).catch((err) => {
+      console.error('Error unsubscribing rooms', err)  
+    }).then(() => {
       return this.subsMgr?.unsubscribeAll()
     }).catch((err) => {
-      console.error('Error unsubscribing rooms', err)  
+      console.error('Error unsubscribing nodes', err)
     }).finally(() => {
       return this.client.disconnect()
     })

@@ -70,8 +70,10 @@ export class SubsManager {
           }
           return xClient.unsubscribeFromNode(pubJid, opts)
         }) : []
-        return Promise.all(unsubPromises).catch((err: unknown) => {
-          console.log('Error unsubscribing 2', err)
+        return Promise.all(unsubPromises).catch(() => {
+          // ignore this error, server reporting invalid subId, after
+          // it's server that provided the subId
+          // console.log('Error unsubscribing 2', err, node)
         })  
       }
     }).catch((err: unknown) => {
