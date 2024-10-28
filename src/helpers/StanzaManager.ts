@@ -1,18 +1,18 @@
 import * as XMPP from 'stanza';
 import { PlayerContextInfo, RoomDetails } from '../App';
 import { SubsManager } from './SubscriptionManager';
-import { JSONItem, Message, ReceivedPresence } from 'stanza/protocol';
+import { DiscoInfoResult, DiscoItemsResult, JSONItem, Message, ReceivedPresence } from 'stanza/protocol';
 
 /** class that handles subscriptions to pub-sub nodes, supporting callbacks
 * for when those documents change
 */
 export class StanzaManager {
   client: XMPP.Agent
-  mucJid: string = ''
-  pubJid: string = ''
-  fullJid: string = ''
+  mucJid = ''
+  pubJid = ''
+  fullJid = ''
   myRooms: RoomDetails[] = []
-  wargame: string = ''
+  wargame = ''
   vCard: XMPP.Stanzas.VCardTemp | undefined = undefined
   subsMgr: SubsManager | undefined = undefined
   print() {
@@ -32,7 +32,7 @@ export class StanzaManager {
   }
   async disconnect(): Promise<void> { 
     const promises =this.myRooms.map((room) => this.client.leaveRoom(room.jid))
-    Promise.all(promises).catch((err) => {
+    Promise.all(promises).catch((err: unknown) => {
       console.error('Error unsubscribing rooms', err)  
     }).then(() => {
       return this.subsMgr?.unsubscribeAll()
@@ -50,15 +50,17 @@ export class StanzaManager {
       let roomIds: string[] = []
       let roomNames: string[]
       const state: Partial<PlayerContextInfo> = { }
-      const serviceJids: Array<string> = []
+      const serviceJids: string[] = []
       const promises: Promise<XMPP.Stanzas.DiscoInfoResult>[] = []
-      return this.client.getDiscoItems(this.wargame).then((services) => {
+      return this.client.getDiscoItems(this.wargame).then((services: DiscoItemsResult) => {
         // get the capabilities
         serviceJids.push(... services.items.map((item) => item.jid as string))
         promises.push(... services.items.map((item) => this.client.getDiscoInfo(item.jid)))
+      }).catch((err) => {
+        console.error('Error getting disco items', err)
       }).then(() => {
         return Promise.all(promises)
-      }).then((capabilities) => {
+      }).then((capabilities: DiscoInfoResult[]) => {
         capabilities.forEach((capability, index) => {
           // console.log('capability', capability)
           const jid = serviceJids[index]
@@ -72,9 +74,11 @@ export class StanzaManager {
             this.subsMgr = new SubsManager(this.client, this.pubJid)
           }
         })
+      }).catch((err) => {
+        console.error('Error getting jids', err)
       }).then(() => {
         return this.client.getDiscoItems(this.mucJid) 
-      }).then((rooms) => {
+      }).then((rooms: DiscoItemsResult) => {
         return rooms.items
       }).then((rooms) => {
         roomIds = rooms.map((room) => room.jid || '')

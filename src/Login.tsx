@@ -52,6 +52,8 @@ export const Login: React.FC<LoginProps> = ({ setPlayerState, welcomeTitle, welc
         } else {
           console.error('No state')
         }
+      }).catch((err) => {
+        console.error('Error getting state', err)
       })
     })
 
