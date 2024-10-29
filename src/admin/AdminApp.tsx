@@ -14,6 +14,9 @@ import { RoomShow } from "./resources/rooms/RoomShow.tsx";
 import { RoomParticipationEdit } from "./resources/roomParticipations/RoomParticipationEdit.tsx";
 import { RoomParticipationShow } from "./resources/roomParticipations/RoomParticipationShow.tsx";
 import { RoomParticipationList } from "./resources/roomParticipations/RoomParticipationList.tsx";
+import { StateList } from "./resources/states/StateList.tsx";
+import { StateShow } from "./resources/states/StateShow.tsx";
+import { StateEdit } from "./resources/states/StateEdit.tsx";
 
 const dataProvider = localDataProvider({defaultData: defaultData})
 
@@ -27,9 +30,9 @@ export const AdminApp = () => (
       name="states"
       options={{ label: 'Current game state' }} 
       icon={EventAvailable}
-      list={ListGuesser}
-      edit={EditGuesser}
-      show={ShowGuesser}
+      list={StateList}
+      edit={StateEdit}
+      show={StateShow}
     />
     <Resource
       name="forces"

@@ -1,8 +1,8 @@
 const defaultData = {
   states: [
     {id: 1, description: 'Learn about Blue vs Red in context of Napoleonic maritime engagements', 
-      turn: 0, gameDate: '1805-10-21T09:00:00', turnTime: '0000-00-00T12:00:00', planningAllowance:
-      '0000-00-00T00:10:00'},
+      turn: 0, gameDate: '1805-10-21T09:00:00Z', turnTime: 'PT12H', planningAllowance:
+      'PT12M'},
   ],
   forces:[
     {id: 'umpire', name: 'Umpire', color: '#fff', objective: 'N/A'},
