@@ -21,8 +21,8 @@ const defaultData = {
     {id:4, name: 'Mechanical Failure', template: 'some-json'},
   ],
   rooms: [
-    {id: 1, name: 'Blue HQ', type: 'custoim'},
-    {id: 2, name: 'Room Media', type: 'custom'},
+    {id: 1, name: 'Blue HQ', type: 'custom'},
+    {id: 2, name: 'Blue Media', type: 'chat'},
   ],
   roomParticipations: [
     {id:1, rooms_id: 1, forces_id: 'blue', users_id: undefined},

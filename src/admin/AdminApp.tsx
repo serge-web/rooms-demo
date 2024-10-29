@@ -9,6 +9,7 @@ import { Layout } from "./Layout.tsx";
 import localDataProvider from "./localDataProvider.ts";
 import { authProvider } from "./authProvider.ts";
 import defaultData from "./initial_data.ts";
+import { RoomShow } from "./resources/rooms/RoomShow.tsx";
 
 const dataProvider = localDataProvider({defaultData: defaultData})
 
@@ -40,10 +41,11 @@ export const AdminApp = () => (
       name="rooms"
       list={ListGuesser}
       edit={EditGuesser}
-      show={ShowGuesser}
+      show={RoomShow}
     />
     <Resource
       name="roomParticipations"
+
       list={ListGuesser}
       edit={EditGuesser}
       show={ShowGuesser}
