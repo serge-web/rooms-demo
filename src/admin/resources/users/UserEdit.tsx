@@ -1,29 +1,26 @@
 import { BooleanInput, Create, Edit, PasswordInput, ReferenceInput, required, SimpleForm, TextInput } from 'react-admin';
 
-const UserForm = () => (<SimpleForm>
-  <TextInput disabled source="id" />
-  <TextInput source="name" />
-  <PasswordInput source="password" />
-  <ReferenceInput label="Force" source="forces_id" reference="forces" />
-  <BooleanInput source="isGameControl" />
-  <BooleanInput source="isFeedbackViewer" />
-</SimpleForm>)
+interface UserFormProps {
+  isEdit?: boolean
+}
 
-export const UserEdit = () => (
-    <Edit>
-        <UserForm/>
-    </Edit>
-);
-
-export const UserCreate = () => (
-  <Create>
-    <SimpleForm>
-      <TextInput source="id" validate={required()} />
+const BaseForm: React.FC<UserFormProps> = ( { isEdit }: UserFormProps) => (<SimpleForm>
+      <TextInput readOnly={isEdit} source="id" validate={required()} />
       <TextInput source="name" validate={required()} />
       <PasswordInput source="password" validate={required()} />
       <ReferenceInput label="Force" source="forces_id" reference="forces" />
       <BooleanInput source="isGameControl" />
       <BooleanInput source="isFeedbackViewer" />
-    </SimpleForm>
+</SimpleForm>)
+
+export const UserEdit = () => (
+    <Edit>
+        <BaseForm isEdit={true} />
+    </Edit>
+);
+
+export const UserCreate = () => (
+  <Create>
+     <BaseForm/>
   </Create>
 )
