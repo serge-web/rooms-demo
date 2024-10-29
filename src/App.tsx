@@ -5,6 +5,7 @@ import Login from './Login'
 import  { Game, GameState } from './Game'
 import * as XMPP from 'stanza';
 import { StanzaManager } from './helpers/StanzaManager';
+import { AdminApp } from './admin/AdminApp';
 
 export interface RoomDetails {
   jid: string
@@ -47,6 +48,7 @@ function App() {
 
   const [playerState, setPlayerState] = useState<PlayerContextInfo | null>(null)
   const [gameState, setGameState] = useState<GameState | null>(null)
+  const [showAdmin, setShowAdmin] = useState<boolean>(false)
   const [theme, setTheme] = useState<Theme | null>(null)
 
   const welcomeTitle = 'War Rooms'
@@ -75,13 +77,13 @@ function App() {
 
   return (
     <ThemeProvider theme={theme || baseTheme}>
-      { playerState && <PlayerContext.Provider value={playerState}>
+    { showAdmin ? <AdminApp/> : playerState && <PlayerContext.Provider value={playerState}>
           <GameContext.Provider value={gameState}>
             <Game setPlayerState={setPlayerState} setGameState={updateGameState} baseTheme={theme ?? baseTheme}
                 setThemeOptions={setThemeOptions} setOldMessages={setOldMessages} />
           </GameContext.Provider>
         </PlayerContext.Provider> }
-      { !playerState && <Login welcomeTitle={welcomeTitle} setThemeOptions={setThemeOptions} setPlayerState={setPlayerState}
+      { !playerState && <Login showAdmin={() => setShowAdmin(true)} welcomeTitle={welcomeTitle} setThemeOptions={setThemeOptions} setPlayerState={setPlayerState}
       welcomeMsg={welcomeMessage} /> }    
     </ThemeProvider>
   )  

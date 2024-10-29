@@ -4,15 +4,17 @@ import './WelcomePage.css';
 import { useEffect, useState } from 'react';
 import { WargameList } from './WargameList';
 import logo from './war-room.png';
+import CogIcon from '@mui/icons-material/Engineering';
 
 export default interface WargameListProps {
   wargames: string[]
   handleLogin: (wargame: string, username: string, password: string) => void
+  showAdmin(): void
   welcomeTitle?: string
   welcomeMsg?: string
 }
 
-export const WelcomePage: React.FC<WargameListProps> = ({ wargames, handleLogin, welcomeTitle, welcomeMsg}: WargameListProps) => {
+export const WelcomePage: React.FC<WargameListProps> = ({ wargames, handleLogin, welcomeTitle, welcomeMsg, showAdmin}: WargameListProps) => {
   const [selectedWargame, setSelectedWargame] = useState<string>('');
   const [username, setUsername] = useState<string>('blue-co');
   const [password, setPassword] = useState<string>('pwd');
@@ -47,6 +49,9 @@ export const WelcomePage: React.FC<WargameListProps> = ({ wargames, handleLogin,
        <Button variant='text' onClick={() => handleLogin('localhost', 'admin', 'elwood')}>Admin</Button>
        <Button variant='text' onClick={() => handleLogin('localhost', 'blue-co', 'pwd')}>Blue CO</Button>
        <Button variant='text' onClick={() => handleLogin('localhost', 'red-co', 'pwd')}>Red CO</Button>
+     </ButtonGroup>
+     <ButtonGroup orientation='horizontal' color='primary' aria-label='outlined primary button group'>
+       <Button variant='contained' onClick={() => showAdmin()}><CogIcon/></Button>
      </ButtonGroup>
      <div id='wargame-panel' className='form-group'>
        <WargameList wargames={wargames} selectedWargame={selectedWargame} setSelectedWargame={setSelectedWargame} />

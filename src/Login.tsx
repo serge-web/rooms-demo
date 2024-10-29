@@ -15,11 +15,12 @@ const wargames = ['localhost'];
 export interface LoginProps {
   setPlayerState: (state: PlayerContextInfo | null) => void
   setThemeOptions: (theme: ThemeOptions) => void
+  showAdmin(): void
   welcomeTitle?: string
   welcomeMsg?: string
 }
 
-export const Login: React.FC<LoginProps> = ({ setPlayerState, welcomeTitle, welcomeMsg }: LoginProps) => {
+export const Login: React.FC<LoginProps> = ({ setPlayerState, welcomeTitle, welcomeMsg, showAdmin }: LoginProps) => {
   const [dialog, setDialog] = useState<string | null>(null);
   const [dialogTitle, setDialogTitle] = useState<string>('');
   
@@ -86,7 +87,7 @@ export const Login: React.FC<LoginProps> = ({ setPlayerState, welcomeTitle, welc
     return ( 
       <>
       <div id='login-container'>
-      <WelcomePage welcomeTitle={welcomeTitle} welcomeMsg={welcomeMsg} wargames={wargames} handleLogin={handleLogin} />
+      <WelcomePage welcomeTitle={welcomeTitle} welcomeMsg={welcomeMsg} wargames={wargames} showAdmin={showAdmin} handleLogin={handleLogin} />
       </div> 
       <SimpleDialog dialog={dialog} setDialog={setDialog} dialogTitle={dialogTitle} />
       </>
