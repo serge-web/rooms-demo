@@ -18,7 +18,7 @@ import { StateEdit } from "./resources/states/StateEdit.tsx";
 import { ForceList } from "./resources/forces/ForcesList.tsx";
 import { ForceEdit } from "./resources/forces/ForcesEdit.tsx";
 import { UserList } from "./resources/users/UserList.tsx";
-import { UserEdit } from "./resources/users/UserEdit.tsx";
+import { UserCreate, UserEdit } from "./resources/users/UserEdit.tsx";
 
 const dataProvider = localDataProvider({defaultData: defaultData})
 
@@ -46,6 +46,7 @@ export const AdminApp = () => (
       icon={Person}
       list={UserList}
       edit={UserEdit}
+      create={UserCreate}
     />
     <Resource
       name="rooms"

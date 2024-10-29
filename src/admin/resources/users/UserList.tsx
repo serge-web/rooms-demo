@@ -2,10 +2,9 @@ import { BooleanField, Datagrid, List, ReferenceField, TextField } from 'react-a
 
 export const UserList = () => (
     <List>
-        <Datagrid>
+        <Datagrid bulkActionButtons={false}>
             <TextField source="id" />
             <TextField source="name" />
-            <TextField source="password" />
             <ReferenceField label="Force" source="forces_id" reference="forces" />
             <BooleanField source="isGameControl" />
             <BooleanField source="isFeedbackViewer" />
