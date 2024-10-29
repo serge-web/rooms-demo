@@ -19,6 +19,7 @@ import { StateShow } from "./resources/states/StateShow.tsx";
 import { StateEdit } from "./resources/states/StateEdit.tsx";
 import { ForceList } from "./resources/forces/ForcesList.tsx";
 import { ForceShow } from "./resources/forces/ForcesShow.tsx";
+import { ForceEdit } from "./resources/forces/ForcesEdit.tsx";
 
 const dataProvider = localDataProvider({defaultData: defaultData})
 
@@ -40,7 +41,7 @@ export const AdminApp = () => (
       name="forces"
       icon={Groups}
       list={ForceList}
-      edit={EditGuesser}
+      edit={ForceEdit}
       show={ForceShow}
     />
     <Resource

@@ -1,7 +1,7 @@
 import { useRecordContext } from "react-admin";
 
 // regex for an html color code
-const htmlRegEx = /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/;
+export const htmlRegEx = /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/;
 const backColor = '#ccc';
 
 export const ColorField = ({ source }: { source: string }) => {

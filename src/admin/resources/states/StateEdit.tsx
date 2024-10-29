@@ -7,7 +7,7 @@ const validateDuration = [required(),  regex(iso8601Duration, durationError)];
 
 export const StateEdit = () => (
     <Edit>
-        <SimpleForm  mode="onBlur" reValidateMode="onBlur">
+        <SimpleForm mode="onBlur" reValidateMode="onBlur">
             <TextInput disabled source="id" />
             <TextInput source="description" />
             <NumberInput source="turn" validate={required()} />
