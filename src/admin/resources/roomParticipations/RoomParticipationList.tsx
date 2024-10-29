@@ -2,7 +2,7 @@ import { Datagrid, List, ReferenceArrayField, ReferenceField, SingleFieldList, T
 
 export const RoomParticipationList = () => (
     <List>
-        <Datagrid>
+        <Datagrid bulkActionButtons={false}>
             <TextField source="id" />
             <ReferenceField source="rooms_id" reference="rooms" />
             <ReferenceArrayField reference="forces" source="forces_id">

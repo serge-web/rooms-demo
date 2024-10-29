@@ -9,7 +9,7 @@ export const ForceEdit = () => (
             <TextInput disabled source="id" />
             <TextInput source="name" />
             <TextInput source="color" validate={validateColor} />
-            <TextInput source="objective" />
+            <TextInput multiline minRows={5} source="objective" />
         </SimpleForm>
     </Edit>
 );

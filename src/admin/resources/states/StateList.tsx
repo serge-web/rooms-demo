@@ -3,7 +3,7 @@ import { DurationField } from '../../helpers/DurationField';
 
 export const StateList = () => (
     <List>
-        <Datagrid>
+        <Datagrid bulkActionButtons={false}>
             <TextField source="id" />
             <TextField source="description" />
             <TextField source="turn" />

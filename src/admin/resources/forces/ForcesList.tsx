@@ -3,7 +3,7 @@ import { ColorField } from '../../helpers/ColorField';
 
 export const ForceList = () => (
     <List>
-        <Datagrid>
+        <Datagrid bulkActionButtons={false}>
             <TextField source="id" />
             <TextField source="name" />
             <ColorField source="color" />
