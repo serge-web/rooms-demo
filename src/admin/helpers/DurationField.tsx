@@ -5,5 +5,5 @@ export const DurationField = ({ source }: { source: string }) => {
   const record = useRecordContext();
   if (!record) return null;
   const durMom = moment.duration(record[source])
-  return durMom.humanize()
+  return durMom.humanize() + ' ('  + record[source] + ')';
 };
