@@ -17,6 +17,8 @@ import { RoomParticipationList } from "./resources/roomParticipations/RoomPartic
 import { StateList } from "./resources/states/StateList.tsx";
 import { StateShow } from "./resources/states/StateShow.tsx";
 import { StateEdit } from "./resources/states/StateEdit.tsx";
+import { ForceList } from "./resources/forces/ForcesList.tsx";
+import { ForceShow } from "./resources/forces/ForcesShow.tsx";
 
 const dataProvider = localDataProvider({defaultData: defaultData})
 
@@ -37,9 +39,9 @@ export const AdminApp = () => (
     <Resource
       name="forces"
       icon={Groups}
-      list={ListGuesser}
+      list={ForceList}
       edit={EditGuesser}
-      show={ShowGuesser}
+      show={ForceShow}
     />
     <Resource
       name="users"
