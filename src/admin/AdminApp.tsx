@@ -12,14 +12,13 @@ import { authProvider } from "./authProvider.ts";
 import defaultData from "./initial_data.ts";
 import { RoomShow } from "./resources/rooms/RoomShow.tsx";
 import { RoomParticipationEdit } from "./resources/roomParticipations/RoomParticipationEdit.tsx";
-import { RoomParticipationShow } from "./resources/roomParticipations/RoomParticipationShow.tsx";
 import { RoomParticipationList } from "./resources/roomParticipations/RoomParticipationList.tsx";
 import { StateList } from "./resources/states/StateList.tsx";
-import { StateShow } from "./resources/states/StateShow.tsx";
 import { StateEdit } from "./resources/states/StateEdit.tsx";
 import { ForceList } from "./resources/forces/ForcesList.tsx";
-import { ForceShow } from "./resources/forces/ForcesShow.tsx";
 import { ForceEdit } from "./resources/forces/ForcesEdit.tsx";
+import { UserList } from "./resources/users/UserList.tsx";
+import { UserEdit } from "./resources/users/UserEdit.tsx";
 
 const dataProvider = localDataProvider({defaultData: defaultData})
 
@@ -35,21 +34,18 @@ export const AdminApp = () => (
       icon={EventAvailable}
       list={StateList}
       edit={StateEdit}
-      show={StateShow}
     />
     <Resource
       name="forces"
       icon={Groups}
       list={ForceList}
       edit={ForceEdit}
-      show={ForceShow}
     />
     <Resource
       name="users"
       icon={Person}
-      list={ListGuesser}
-      edit={EditGuesser}
-      show={ShowGuesser}
+      list={UserList}
+      edit={UserEdit}
     />
     <Resource
       name="rooms"
@@ -64,7 +60,6 @@ export const AdminApp = () => (
       icon={RoomPreferences}
       list={RoomParticipationList}
       edit={RoomParticipationEdit}
-      show={RoomParticipationShow}
     />
     <Resource
       name="templates"

@@ -10,9 +10,9 @@ const defaultData = {
     {id: 'blue', name: 'Blue', color: '#00f', objective: 'Destroy Red Forces'},
   ],
   users:[
-    {id: 1, name: 'Game Control', username: 'admin', password: 'password', forces_id: 'umpire', isGameControl: true, isFeebackViewer: true},
-    {id: 2, name: 'Blue CO', username: 'blue-co', password: 'password', forces_id: 'blue', isGameControl: false, isFeebackViewer: false},
-    {id: 3, name: 'Red CO', username: 'red-co', password: 'password', forces_id: 'red', isGameControl: false, isFeebackViewer: false},
+    { name: 'Game Control', id: 'admin', password: 'password', forces_id: 'umpire', isGameControl: true, isFeedbackViewer: true},
+    { name: 'Blue CO', id: 'blue-co', password: 'password', forces_id: 'blue', isGameControl: false, isFeedbackViewer: false},
+    { name: 'Red CO', id: 'red-co', password: 'password', forces_id: 'red', isGameControl: false, isFeedbackViewer: false},
   ],
   templates: [
     {id:1, name: 'Orders', template: 'some-json'},
