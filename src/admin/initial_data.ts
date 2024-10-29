@@ -19,15 +19,16 @@ const defaultData = {
     {id:2, name: 'Weather', template: 'some-json'},
     {id:3, name: 'Media', template: 'some-json'},
     {id:4, name: 'Mechanical Failure', template: 'some-json'},
+    {id:5, name: 'Media', template: 'some-json'},
   ],
   rooms: [
     {id: 1, name: 'Blue HQ', type: 'custom'},
     {id: 2, name: 'Blue Media', type: 'chat'},
   ],
   roomParticipations: [
-    {id:1, rooms_id: 1, forces_id: 'blue', users_id: undefined},
-    {id:2, rooms_id: 1, forces_id: undefined, users_id: 2, templates_id: 1},
-    {id:3, rooms_id: 2, forces_id: 'blue', users_id: undefined},
+    {id:1, rooms_id: 1, forces_id: ['blue'], users_id: [1,2], templates_id: []},
+    {id:2, rooms_id: 1, forces_id: [], users_id: [2], templates_id: [1, 2]},
+    {id:3, rooms_id: 2, forces_id: ['blue', 'red', 'umpire'], users_id: [], templates_id: [3]},
   ]
 }
 export default defaultData;

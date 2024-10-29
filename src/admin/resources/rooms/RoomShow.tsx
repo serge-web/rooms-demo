@@ -1,4 +1,5 @@
-import { ListGuesser, ReferenceManyField, Show, SimpleShowLayout, TextField } from 'react-admin';
+import { ReferenceManyField, Show, SimpleShowLayout, TextField } from 'react-admin';
+import { RoomParticipationList } from '../roomParticipations/RoomParticipationList';
 
 
 export const RoomShow = () => (
@@ -8,7 +9,7 @@ export const RoomShow = () => (
             <TextField source="name" />
             <TextField source="type" />
             <ReferenceManyField reference="roomParticipations" target="rooms_id" label="Participants">
-              <ListGuesser />
+                <RoomParticipationList/>
             </ReferenceManyField>    
         </SimpleShowLayout>
     </Show>

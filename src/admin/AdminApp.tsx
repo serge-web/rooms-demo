@@ -10,6 +10,9 @@ import localDataProvider from "./localDataProvider.ts";
 import { authProvider } from "./authProvider.ts";
 import defaultData from "./initial_data.ts";
 import { RoomShow } from "./resources/rooms/RoomShow.tsx";
+import { RoomParticipationEdit } from "./resources/roomParticipations/RoomParticipationEdit.tsx";
+import { RoomParticipationShow } from "./resources/roomParticipations/RoomParticipationShow.tsx";
+import { RoomParticipationList } from "./resources/roomParticipations/RoomParticipationList.tsx";
 
 const dataProvider = localDataProvider({defaultData: defaultData})
 
@@ -45,10 +48,15 @@ export const AdminApp = () => (
     />
     <Resource
       name="roomParticipations"
-
+      list={RoomParticipationList}
+      edit={RoomParticipationEdit}
+      show={RoomParticipationShow}
+    />
+    <Resource
+      name="templates"
       list={ListGuesser}
       edit={EditGuesser}
-      show={ShowGuesser}
+      show={RoomShow}
     />
   </Admin>
 );
