@@ -4,7 +4,7 @@ import { RoomParticipationList } from '../roomParticipations/RoomParticipationLi
 
 export const RoomShow = () => (
     <Show>
-        <SimpleShowLayout>
+        <SimpleShowLayout sx={{textAlign:'left'}}>
             <TextField source="id"/>
             <TextField source="name" />
             <TextField source="type" />
