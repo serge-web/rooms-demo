@@ -1,5 +1,5 @@
 // MUCRoom.tsx
-import { Button, ButtonGroup, FormControl, TextField, Typography } from '@mui/material';
+import { Button, ButtonGroup, FormControl, Link, TextField, Typography } from '@mui/material';
 import './WelcomePage.css';
 import { useEffect, useState } from 'react';
 import { WargameList } from './WargameList';
@@ -9,12 +9,11 @@ import CogIcon from '@mui/icons-material/Engineering';
 export default interface WargameListProps {
   wargames: string[]
   handleLogin: (wargame: string, username: string, password: string) => void
-  showAdmin(): void
   welcomeTitle?: string
   welcomeMsg?: string
 }
 
-export const WelcomePage: React.FC<WargameListProps> = ({ wargames, handleLogin, welcomeTitle, welcomeMsg, showAdmin}: WargameListProps) => {
+export const WelcomePage: React.FC<WargameListProps> = ({ wargames, handleLogin, welcomeTitle, welcomeMsg }: WargameListProps) => {
   const [selectedWargame, setSelectedWargame] = useState<string>('');
   const [username, setUsername] = useState<string>('blue-co');
   const [password, setPassword] = useState<string>('pwd');
@@ -51,7 +50,11 @@ export const WelcomePage: React.FC<WargameListProps> = ({ wargames, handleLogin,
        <Button variant='text' onClick={() => handleLogin('localhost', 'red-co', 'pwd')}>Red CO</Button>
      </ButtonGroup>
      <ButtonGroup orientation='horizontal' color='primary' aria-label='outlined primary button group'>
-       <Button variant='contained' onClick={() => showAdmin()}><CogIcon/></Button>
+       <Button variant='contained'>
+        <Link style={{color: '#fff'}} href='\'>
+          <CogIcon/>
+        </Link>
+       </Button>
      </ButtonGroup>
      <div id='wargame-panel' className='form-group'>
        <WargameList wargames={wargames} selectedWargame={selectedWargame} setSelectedWargame={setSelectedWargame} />

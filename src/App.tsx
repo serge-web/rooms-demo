@@ -6,6 +6,7 @@ import  { Game, GameState } from './Game'
 import * as XMPP from 'stanza';
 import { StanzaManager } from './helpers/StanzaManager';
 import { AdminApp } from './admin/AdminApp';
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 export interface RoomDetails {
   jid: string
@@ -45,28 +46,27 @@ const baseTheme: Theme = createTheme({
 
 
 function App() {
-
+  
   const [playerState, setPlayerState] = useState<PlayerContextInfo | null>(null)
   const [gameState, setGameState] = useState<GameState | null>(null)
-  const [showAdmin, setShowAdmin] = useState<boolean>(false)
   const [theme, setTheme] = useState<Theme | null>(null)
-
+  
   const welcomeTitle = 'War Rooms'
   const welcomeMessage = 'Welcome to the wargame'
-
-
+  
+  
   const setThemeOptions = (options: ThemeOptions) => {
     const theme = createTheme(options)
     setTheme(theme)
   }
-
+  
   const setOldMessages = useCallback((oldMessages: XMPP.Stanzas.Forward[]) => {
     if (playerState) {
       const newState = {...playerState, oldMessages} as PlayerContextInfo
       setPlayerState(newState)
     }
   }, [playerState]);
-
+  
   const updateGameState = useCallback((newGameState: GameState) => {
     const existingJSON = JSON.stringify(gameState)
     const newJSON = JSON.stringify(newGameState)
@@ -74,18 +74,26 @@ function App() {
       setGameState(newGameState)
     }
   }, [gameState]);
-
+  
   return (
-    <ThemeProvider theme={theme || baseTheme}>
-    { showAdmin ? <AdminApp/> : playerState && <PlayerContext.Provider value={playerState}>
-          <GameContext.Provider value={gameState}>
-            <Game setPlayerState={setPlayerState} setGameState={updateGameState} baseTheme={theme ?? baseTheme}
-                setThemeOptions={setThemeOptions} setOldMessages={setOldMessages} />
-          </GameContext.Provider>
-        </PlayerContext.Provider> }
-      { !playerState && <Login showAdmin={() => setShowAdmin(true)} welcomeTitle={welcomeTitle} setThemeOptions={setThemeOptions} setPlayerState={setPlayerState}
-      welcomeMsg={welcomeMessage} /> }    
-    </ThemeProvider>
+    <BrowserRouter>
+    <Routes>
+    <Route path="/app" element={
+      <ThemeProvider theme={theme || baseTheme}>
+      { playerState && <PlayerContext.Provider value={playerState}>
+      <GameContext.Provider value={gameState}>
+      <Game setPlayerState={setPlayerState} setGameState={updateGameState} baseTheme={theme ?? baseTheme}
+      setThemeOptions={setThemeOptions} setOldMessages={setOldMessages} />
+      </GameContext.Provider>
+      </PlayerContext.Provider> }
+      { !playerState && <Login showAdmin={() => console.log('open admin')} welcomeTitle={welcomeTitle} setThemeOptions={setThemeOptions} setPlayerState={setPlayerState}
+      welcomeMsg={welcomeMessage} /> }  
+      </ThemeProvider>
+    } />
+    <Route path="/*" element={<AdminApp />} />
+    </Routes>
+    </BrowserRouter>
+    
   )  
 }
 
