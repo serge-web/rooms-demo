@@ -1,7 +1,7 @@
 import { Datagrid, List, TextField } from "react-admin";
 
 export const RoomList = () => (
-  <List>
+  <List exporter={false}>
       <Datagrid>
           <TextField source="id" />
           <TextField source="name" />

@@ -1,4 +1,4 @@
-import { Edit, ReferenceManyField, SimpleForm, TextInput } from 'react-admin';
+import { Create, Edit, ReferenceManyField, SimpleForm, TextInput } from 'react-admin';
 import { RoomParticipationList } from '../roomParticipations/RoomParticipationList';
 import { CreateRelatedRecordButton } from '../../helpers/CreateRelatedRecordButton';
 
@@ -15,4 +15,14 @@ export const RoomEdit = () => {
             <CreateRelatedRecordButton resource="roomParticipations" source="id" target="rooms_id"/>
         </SimpleForm> 
     </Edit>
+)};
+
+export const RoomCreate = () => {
+  return ( 
+    <Create>
+        <SimpleForm>
+            <TextInput source="name" />
+            <TextInput source="type" />
+        </SimpleForm> 
+    </Create>
 )};

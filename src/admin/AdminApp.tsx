@@ -20,7 +20,7 @@ import { ForceEdit } from "./resources/forces/ForcesEdit.tsx";
 import { UserList } from "./resources/users/UserList.tsx";
 import { UserCreate, UserEdit } from "./resources/users/UserEdit.tsx";
 import { RoomList } from "./resources/rooms/RoomList.tsx";
-import { RoomEdit } from "./resources/rooms/RoomEdit.tsx";
+import { RoomCreate, RoomEdit } from "./resources/rooms/RoomEdit.tsx";
 
 const dataProvider = localDataProvider({defaultData: defaultData})
 
@@ -56,6 +56,7 @@ export const AdminApp = () => (
       list={RoomList}
       edit={RoomEdit}
       show={RoomShow}
+      create={RoomCreate}
     />
     <Resource
       name="roomParticipations"

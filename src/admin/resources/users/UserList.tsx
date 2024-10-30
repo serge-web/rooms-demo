@@ -1,7 +1,7 @@
 import { BooleanField, Datagrid, List, ReferenceField, TextField } from 'react-admin';
 
 export const UserList = () => (
-    <List>
+    <List exporter={false}>
         <Datagrid bulkActionButtons={false}>
             <TextField source="id" />
             <TextField source="name" />

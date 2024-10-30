@@ -17,7 +17,7 @@ export const RoomParticipationList = () => (
 );
 
 export const RoomParticipationFullList = () => (
-  <List>
+  <List exporter={false}>
     <Datagrid bulkActionButtons={false}>
         <TextField source="id" />
         <ReferenceField source="rooms_id" reference="rooms" />

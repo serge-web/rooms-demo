@@ -2,7 +2,7 @@ import { Datagrid, DateField, List, TextField } from 'react-admin';
 import { DurationField } from '../../helpers/DurationField';
 
 export const StateList = () => (
-    <List>
+    <List exporter={false}>
         <Datagrid bulkActionButtons={false}>
             <TextField source="id" />
             <TextField source="description" />
