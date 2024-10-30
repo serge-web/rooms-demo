@@ -11,7 +11,7 @@ import localDataProvider from "./localDataProvider.ts";
 import { authProvider } from "./authProvider.ts";
 import defaultData from "./initial_data.ts";
 import { RoomShow } from "./resources/rooms/RoomShow.tsx";
-import { RoomParticipationEdit } from "./resources/roomParticipations/RoomParticipationEdit.tsx";
+import { RoomParticipationCreate, RoomParticipationEdit } from "./resources/roomParticipations/RoomParticipationEdit.tsx";
 import { RoomParticipationFullList } from "./resources/roomParticipations/RoomParticipationList.tsx";
 import { StateList } from "./resources/states/StateList.tsx";
 import { StateEdit } from "./resources/states/StateEdit.tsx";
@@ -63,6 +63,7 @@ export const AdminApp = () => (
       icon={RoomPreferences}
       list={RoomParticipationFullList}
       edit={RoomParticipationEdit}
+      create={RoomParticipationCreate}
     />
     <Resource
       name="templates"
