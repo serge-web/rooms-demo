@@ -9,7 +9,7 @@ export const RoomShow = () => (
             <TextField source="name" />
             <TextField source="type" />
             <ReferenceManyField reference="roomParticipations" target="rooms_id" label="Participants">
-                    <RoomParticipationList/>
+                <RoomParticipationList/>
             </ReferenceManyField>    
         </SimpleShowLayout>
     </Show>

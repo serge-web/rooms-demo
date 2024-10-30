@@ -12,13 +12,15 @@ import { authProvider } from "./authProvider.ts";
 import defaultData from "./initial_data.ts";
 import { RoomShow } from "./resources/rooms/RoomShow.tsx";
 import { RoomParticipationEdit } from "./resources/roomParticipations/RoomParticipationEdit.tsx";
-import { RoomParticipationList } from "./resources/roomParticipations/RoomParticipationList.tsx";
+import { RoomParticipationFullList } from "./resources/roomParticipations/RoomParticipationList.tsx";
 import { StateList } from "./resources/states/StateList.tsx";
 import { StateEdit } from "./resources/states/StateEdit.tsx";
 import { ForceList } from "./resources/forces/ForcesList.tsx";
 import { ForceEdit } from "./resources/forces/ForcesEdit.tsx";
 import { UserList } from "./resources/users/UserList.tsx";
 import { UserCreate, UserEdit } from "./resources/users/UserEdit.tsx";
+import { RoomList } from "./resources/rooms/RoomList.tsx";
+import { RoomEdit } from "./resources/rooms/RoomEdit.tsx";
 
 const dataProvider = localDataProvider({defaultData: defaultData})
 
@@ -51,15 +53,15 @@ export const AdminApp = () => (
     <Resource
       name="rooms"
       icon={MeetingRoom}
-      list={ListGuesser}
-      edit={EditGuesser}
+      list={RoomList}
+      edit={RoomEdit}
       show={RoomShow}
     />
     <Resource
       name="roomParticipations"
       options={{ label: 'Room Membership' }} 
       icon={RoomPreferences}
-      list={RoomParticipationList}
+      list={RoomParticipationFullList}
       edit={RoomParticipationEdit}
     />
     <Resource
