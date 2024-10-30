@@ -6,7 +6,7 @@ export const RoomEdit = () => {
   return ( 
     <Edit>
         <SimpleForm>
-            <TextInput source="id" />
+            <TextInput disabled source="id" />
             <TextInput source="name" />
             <TextInput source="type" />
             <ReferenceManyField reference="roomParticipations" target="rooms_id" label="Participants">
