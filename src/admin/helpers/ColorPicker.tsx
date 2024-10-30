@@ -34,12 +34,13 @@ const ColorPicker: React.FC<PropTypes> = ({ source, label }) => {
   return (
     <div>
       <div>{label}</div>
-      <div className={'swatch'} onClick={handleClick}>
+      <div className={'swatch'} onClick={handleClick}>{field.value}
         <div key={id} className={'color'} style={colorStyles} />
       </div>
       {active && <div className={'popover'} >
         <div className={'cover'} onClick={handleClick}/>
         <SketchPicker key={id} color={field.value} onChange={handleChange}/>
+        
       </div>}
 
     </div>
