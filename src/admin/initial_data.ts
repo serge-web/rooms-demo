@@ -12,6 +12,7 @@ const defaultData = {
   users:[
     { name: 'Game Control', id: 'admin', password: 'password', forces_id: 'umpire', isGameControl: true, isFeedbackViewer: true},
     { name: 'Blue CO', id: 'blue-co', password: 'password', forces_id: 'blue', isGameControl: false, isFeedbackViewer: false},
+    { name: 'Blue Media', id: 'blue-media', password: 'password', forces_id: 'blue', isGameControl: false, isFeedbackViewer: false},
     { name: 'Red CO', id: 'red-co', password: 'password', forces_id: 'red', isGameControl: false, isFeedbackViewer: false},
   ],
   templates: [
@@ -26,9 +27,10 @@ const defaultData = {
     {id: 2, name: 'Blue Media', type: 'chat'},
   ],
   roomParticipations: [
-    {id:1, rooms_id: 1, forces_id: ['blue'], users_id: [1,2], templates_id: []},
-    {id:2, rooms_id: 1, forces_id: [], users_id: [2], templates_id: [1, 2]},
-    {id:3, rooms_id: 2, forces_id: ['blue', 'red', 'umpire'], users_id: [], templates_id: [3]},
+    {id:1, rooms_id: 1, forces_id: ['blue'], users_id:[], templates_id: []},
+    {id:2, rooms_id: 1, forces_id: [], users_id: ['blue-co'], templates_id: [1, 2]},
+    {id:3, rooms_id: 2, forces_id: ['blue', 'red', 'umpire'], users_id: [], templates_id: []},
+    {id:4, rooms_id: 2, forces_id: [], users_id: ['blue-media'], templates_id: [3]},
   ]
 }
 export default defaultData;

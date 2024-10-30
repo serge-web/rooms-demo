@@ -1,7 +1,7 @@
 import { Datagrid, List, ReferenceArrayField, ReferenceField, SingleFieldList, TextField } from 'react-admin';
 
 export const RoomParticipationList = () => (
-    <List>
+    <List exporter={false}>
         <Datagrid bulkActionButtons={false}>
             <TextField source="id" />
             <ReferenceField source="rooms_id" reference="rooms" />

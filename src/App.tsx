@@ -77,21 +77,21 @@ function App() {
   
   return (
     <BrowserRouter>
-    <Routes>
-    <Route path="/app" element={
-      <ThemeProvider theme={theme || baseTheme}>
-      { playerState && <PlayerContext.Provider value={playerState}>
-      <GameContext.Provider value={gameState}>
-      <Game setPlayerState={setPlayerState} setGameState={updateGameState} baseTheme={theme ?? baseTheme}
-      setThemeOptions={setThemeOptions} setOldMessages={setOldMessages} />
-      </GameContext.Provider>
-      </PlayerContext.Provider> }
-      { !playerState && <Login showAdmin={() => console.log('open admin')} welcomeTitle={welcomeTitle} setThemeOptions={setThemeOptions} setPlayerState={setPlayerState}
-      welcomeMsg={welcomeMessage} /> }  
-      </ThemeProvider>
-    } />
-    <Route path="/*" element={<AdminApp />} />
-    </Routes>
+      <Routes>
+        <Route path="/*" element={<AdminApp />} />
+        <Route path="/app" element={
+          <ThemeProvider theme={theme || baseTheme}>
+          { playerState && <PlayerContext.Provider value={playerState}>
+          <GameContext.Provider value={gameState}>
+          <Game setPlayerState={setPlayerState} setGameState={updateGameState} baseTheme={theme ?? baseTheme}
+          setThemeOptions={setThemeOptions} setOldMessages={setOldMessages} />
+          </GameContext.Provider>
+          </PlayerContext.Provider> }
+          { !playerState && <Login showAdmin={() => console.log('open admin')} welcomeTitle={welcomeTitle} setThemeOptions={setThemeOptions} setPlayerState={setPlayerState}
+          welcomeMsg={welcomeMessage} /> }  
+          </ThemeProvider>
+        } />
+      </Routes>
     </BrowserRouter>
     
   )  
