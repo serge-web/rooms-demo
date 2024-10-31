@@ -30,6 +30,20 @@ export class StanzaManager {
   subscribeToNode(node: string, callback: <T>(msg: T) => void): void {
     this.subsMgr?.subscribeToNode(node, callback)
   }
+  checkInitialized(): boolean {
+    this.client.getDiscoInfo('_admin@' + this.mucJid).then((config) => {
+      console.log('congif', config)
+      return true
+    }).catch((err) => {
+      if(err.error?.condition === 'item-not-found') {
+        return false
+      } else {
+        console.error(err)
+        return false
+      }
+    })
+    return false
+  }
   async disconnect(): Promise<void> { 
     const promises =this.myRooms.map((room) => this.client.leaveRoom(room.jid))
     Promise.all(promises).catch((err: unknown) => {
@@ -66,6 +80,7 @@ export class StanzaManager {
           const jid = serviceJids[index]
           if(capability.features.find((feature) => feature === 'http://jabber.org/protocol/muc')) { 
             this.mucJid = jid as string
+            console.log('found muc', jid)
             state.mucJid = jid
           }
           if(capability.features.find((feature) => feature === 'http://jabber.org/protocol/pubsub')) { 
