@@ -1,13 +1,13 @@
 // Login.tsx
-import * as XMPP from 'stanza';
-import { useCallback, useContext, useEffect, useRef, useState } from 'react';
-import './Login.css';
-import { GameStatePanel } from './GameStatePanel';
+import * as XMPP from 'stanza'
+import { useCallback, useContext, useEffect, useRef, useState } from 'react'
+import './Login.css'
+import { GameStatePanel } from './GameStatePanel'
 import { FLAG_IS_FEEDBACK_OBSERVER, FLAG_IS_GAME_CONTROL, FORCE_DETAILS, FORCE_NODE, GAME_STATE, GAME_STATE_NODE, GAME_THEME_NODE, THEME } from './Constants'
-import { SimpleDialog } from './SimpleDialog';
-import { MUCAllRooms } from './MUCAllRooms';
-import { PlayerContext, PlayerContextInfo, RoomDetails } from './App';
-import { Theme, ThemeOptions, ThemeProvider } from '@mui/material';
+import { SimpleDialog } from './SimpleDialog'
+import { MUCAllRooms } from './MUCAllRooms'
+import { PlayerContext, PlayerContextInfo, RoomDetails } from './App'
+import { Theme, ThemeOptions, ThemeProvider } from '@mui/material'
 
 export interface GamePresence {
   jid: string
@@ -50,34 +50,31 @@ export interface GameProps {
 const onlyLastForce = (forces: ForceDetails[]): ForceDetails[] => {
   const map: {[index: string]: ForceDetails} = {}
   forces.forEach((item: ForceDetails) =>{
-    map[ item.id ] = item;
+    map[ item.id ] = item
   })
   return Object.keys( map ).map( function(key){
-    return map[key];
+    return map[key]
   })
 }
 
 export const Game: React.FC<GameProps> = ({ setPlayerState, setGameState, setThemeOptions, setOldMessages, baseTheme }: GameProps) => {
   const {xClient, myRooms, oldMessages, roomsTheme, stanzaMgr, vCard
    } = useContext(PlayerContext) as PlayerContextInfo
-  const [trimmedRooms, setTrimmedRooms] = useState<RoomDetails[]>([]);
-  const [newMessage, setNewMessage] = useState<XMPP.Stanzas.Forward | undefined>();
-  const [showHidden, setShowHidden] = useState(false);
-  const [isGameControl, setIsGameControl] = useState<boolean>(false);
-  const [isFeedbackObserver, setIsFeedbackObserver] = useState<boolean>(false);
-  const [properName, setProperName] = useState<string>('');
-  
-  const [forceId, setForceId] = useState<string>('');
-  const [force, setForce] = useState<ForceDetails | null>(null);
-
-  const [dialog, setDialog] = useState<string | null>(null);
-  const [dialogTitle, setDialogTitle] = useState<string>('');
-  
+  const [trimmedRooms, setTrimmedRooms] = useState<RoomDetails[]>([])
+  const [newMessage, setNewMessage] = useState<XMPP.Stanzas.Forward | undefined>()
+  const [showHidden, setShowHidden] = useState(false)
+  const [isGameControl, setIsGameControl] = useState<boolean>(false)
+  const [isFeedbackObserver, setIsFeedbackObserver] = useState<boolean>(false)
+  const [properName, setProperName] = useState<string>('')
+  const [forceId, setForceId] = useState<string>('')
+  const [force, setForce] = useState<ForceDetails | null>(null)
+  const [dialog, setDialog] = useState<string | null>(null)
+  const [dialogTitle, setDialogTitle] = useState<string>('')
   const [pendingOldMessages] = useState<XMPP.Stanzas.Forward[]>([])
 
   // TODO: this flag prevents us setting up the client multiple times
   // it would be better to not have the issue
-  const clientDone = useRef<boolean>();
+  const clientDone = useRef<boolean>()
 
   const storeOldMessage = useCallback((msg: XMPP.Stanzas.Forward | null) => {
     if (msg) {
@@ -101,22 +98,22 @@ export const Game: React.FC<GameProps> = ({ setPlayerState, setGameState, setThe
       // listen for incoming messages
       xClient.on('disconnected', msg => {
         console.log('EV: disconnected', msg, !!setDialogTitle, !!onlyLastForce)
-      });
+      })
       
       // listen for incoming messages
       xClient.on('stream:error', msg => {
         console.log('EV:stream error', msg)
-      });
+      })
       
       // listen for incoming messages
       xClient.on('presence:error', msg => {
         console.log('EV:presence error', msg)
-      });
+      })
       
       // listen for incoming messages
       xClient.on('chat', msg => {
         console.log('EV: chat3', msg)
-      });
+      })
 
       let timeout: NodeJS.Timeout
 
@@ -141,7 +138,7 @@ export const Game: React.FC<GameProps> = ({ setPlayerState, setGameState, setThe
           const withTimeStamp = {...message, delay: {timestamp: new Date()}}
           setNewMessage(withTimeStamp)
         }
-      });
+      })
       
       xClient.on('bosh:terminate', (direction, data) => {
         console.log('bosh:terminate: logging out', direction, 'data:', data, !!force)
@@ -155,21 +152,21 @@ export const Game: React.FC<GameProps> = ({ setPlayerState, setGameState, setThe
       
       xClient.on('muc:available', () => {
         // console.log('new MUC available', muc)
-      });
+      })
 
       xClient.on('muc:other', (muc) => {
         console.log('new MUC other', muc)
-      });
+      })
       
       xClient?.on('muc:join', () => {
         // console.log('new MUC join', muc)
-      });
+      })
 
       xClient?.on('muc:topic', () => {
         // note: we ignore the room topic, we use the 
         // room-name from the room config details
         // console.log('new MUC topic', muc)
-      });
+      })
 
       xClient.on('iq', (iq) => {
         if (iq.muc && iq.muc.type === 'user-list') {
@@ -187,15 +184,15 @@ export const Game: React.FC<GameProps> = ({ setPlayerState, setGameState, setThe
           // ignore
           // console.log('new IQ', iq)
         }
-      });
+      })
 
       // xClient.on('muc:leave', () => {
       //   // console.log('new MUC leave', muc)
-      // });
+      // })
       
       xClient.on('muc:error', (muc) => {
         console.log('new MUC error', muc)
-      });
+      })
 
       // request carbons
       xClient.enableCarbons().then(() => {
@@ -312,7 +309,7 @@ const containerStyles:  React.CSSProperties = {
   flexDirection: 'row',
   border: '1px solid #000',
   borderRadius: '10px',
-  padding: '1em',
+  padding: '1em'
 }
 
 return ( <div style={containerStyles}>

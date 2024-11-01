@@ -1,6 +1,6 @@
 // MUCRoom.tsx
-import { FormControl, List, ListItem, ListItemButton, ListItemText } from '@mui/material';
-import './MUCMessage.css';
+import { FormControl, List, ListItem, ListItemButton, ListItemText } from '@mui/material'
+import './MUCMessage.css'
 
 export default interface WargameListProps {
   wargames: string[]
@@ -12,7 +12,7 @@ export const WargameList: React.FC<WargameListProps> = ({ wargames, selectedWarg
   const boldText = {
     fontWeight: 'bold',
     marginTop: '0px'
-  };
+  }
   
   return ( 
     <FormControl>

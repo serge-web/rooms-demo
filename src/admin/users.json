@@ -1,0 +1,16 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "username": "admin",
+      "password": "elwood",
+      "fullName": "Game Control"
+    },
+    {
+      "id": 2,
+      "username": "johndoe",
+      "password": "password",
+      "fullName": "John Doe"
+    }
+  ]
+}

@@ -1,9 +1,9 @@
 // MUCMessage.tsx
-import { Card, CardActions, CardContent, Paper, Typography } from '@mui/material';
-import './MUCMessage.css';
-import * as XMPP from 'stanza';
-import { useState, useEffect } from 'react';
-import moment from 'moment';
+import { Card, CardActions, CardContent, Paper, Typography } from '@mui/material'
+import './MUCMessage.css'
+import * as XMPP from 'stanza'
+import { useState, useEffect } from 'react'
+import moment from 'moment'
 export default interface MessageProps {
   message: XMPP.Stanzas.Message
   compact?: boolean

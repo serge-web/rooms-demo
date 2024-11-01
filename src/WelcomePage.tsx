@@ -1,9 +1,10 @@
 // MUCRoom.tsx
-import { Button, ButtonGroup, FormControl, TextField, Typography } from '@mui/material';
-import './WelcomePage.css';
-import { useEffect, useState } from 'react';
-import { WargameList } from './WargameList';
-import logo from './war-room.png';
+import { Button, ButtonGroup, FormControl, Link, TextField, Typography } from '@mui/material'
+import './WelcomePage.css'
+import { useEffect, useState } from 'react'
+import { WargameList } from './WargameList'
+import logo from './war-room.png'
+import CogIcon from '@mui/icons-material/Engineering'
 
 export default interface WargameListProps {
   wargames: string[]
@@ -12,12 +13,12 @@ export default interface WargameListProps {
   welcomeMsg?: string
 }
 
-export const WelcomePage: React.FC<WargameListProps> = ({ wargames, handleLogin, welcomeTitle, welcomeMsg}: WargameListProps) => {
-  const [selectedWargame, setSelectedWargame] = useState<string>('');
-  const [username, setUsername] = useState<string>('blue-co');
-  const [password, setPassword] = useState<string>('pwd');
-  const [loginDisabled, setLoginDisabled] = useState<boolean>(true);
-  const [loginVisible, setLoginVisible] = useState<boolean>(false);
+export const WelcomePage: React.FC<WargameListProps> = ({ wargames, handleLogin, welcomeTitle, welcomeMsg }: WargameListProps) => {
+  const [selectedWargame, setSelectedWargame] = useState<string>('')
+  const [username, setUsername] = useState<string>('blue-co')
+  const [password, setPassword] = useState<string>('pwd')
+  const [loginDisabled, setLoginDisabled] = useState<boolean>(true)
+  const [loginVisible, setLoginVisible] = useState<boolean>(false)
 
   // get members
   useEffect(() => {
@@ -48,6 +49,13 @@ export const WelcomePage: React.FC<WargameListProps> = ({ wargames, handleLogin,
        <Button variant='text' onClick={() => handleLogin('localhost', 'blue-co', 'pwd')}>Blue CO</Button>
        <Button variant='text' onClick={() => handleLogin('localhost', 'red-co', 'pwd')}>Red CO</Button>
      </ButtonGroup>
+     <ButtonGroup orientation='horizontal' color='primary' aria-label='outlined primary button group'>
+       <Button variant='contained'>
+        <Link style={{color: '#fff'}} href='\'>
+          <CogIcon/>
+        </Link>
+       </Button>
+     </ButtonGroup>
      <div id='wargame-panel' className='form-group'>
        <WargameList wargames={wargames} selectedWargame={selectedWargame} setSelectedWargame={setSelectedWargame} />
      </div>
@@ -56,7 +64,7 @@ export const WelcomePage: React.FC<WargameListProps> = ({ wargames, handleLogin,
           <Typography style={{textAlign:'left', marginBottom:'10px'}}>Login to {selectedWargame}:</Typography>
           <TextField required fullWidth label='Username (bob)' value={username} onChange={(event) => setUsername(event.target.value)}/>
           <TextField required fullWidth label='Password (secret)' type='password' value={password} 
-            onChange={(event) => setPassword(event.target.value)} margin='normal'  />  
+            onChange={(event) => setPassword(event.target.value)} margin='normal' />  
           <Button variant='contained' type='submit' disabled={loginDisabled} 
             onClick={() => handleLogin(selectedWargame, username, password)}>Login</Button>
         </FormControl>

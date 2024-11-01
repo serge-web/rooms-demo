@@ -1,8 +1,8 @@
 // MUCRoom.tsx
-import { Button,  } from '@mui/material';
-import { useState } from 'react';
-import SendIcon from '@mui/icons-material/Send';
-import './MUCNewMessage.css';
+import { Button } from '@mui/material'
+import { useState } from 'react'
+import SendIcon from '@mui/icons-material/Send'
+import './MUCNewMessage.css'
 
 export default interface NewMessageProps {
   sendMessage: (content: string) => void
@@ -10,7 +10,7 @@ export default interface NewMessageProps {
 }
 
 export const MUCNewMessage: React.FC<NewMessageProps> = ({ sendMessage, visible=true }: NewMessageProps) => {
-  const [content, setContent] = useState<string>('');
+  const [content, setContent] = useState<string>('')
 
   const localSendMessage = (content: string):void => {
     sendMessage(content)
@@ -18,7 +18,7 @@ export const MUCNewMessage: React.FC<NewMessageProps> = ({ sendMessage, visible=
     setContent('')
   }
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+    event.preventDefault()
     sendMessage(content)
     setContent('')
   }
