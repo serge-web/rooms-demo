@@ -1,13 +1,13 @@
 // MUCRoom.tsx
-import { Card, CardActions, CardContent, CardHeader, Skeleton, Typography } from '@mui/material';
-import { ReactElement, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import MeetingRoomIcon from '@mui/icons-material/MeetingRoom';
-import * as XMPP from 'stanza';
-import { MUCNewMessage } from './MUCNewMessage';
-import { FOOTER_MARKER, MUCMessage } from './MUCMessage';
-import './MUCMessage.css';
-import { PlayerContext, PlayerContextInfo, RoomDetails } from './App';
-import { ExtendedAddress } from 'stanza/protocol';
+import { Card, CardActions, CardContent, CardHeader, Skeleton, Typography } from '@mui/material'
+import { ReactElement, useContext, useEffect, useMemo, useRef, useState } from 'react'
+import MeetingRoomIcon from '@mui/icons-material/MeetingRoom'
+import * as XMPP from 'stanza'
+import { MUCNewMessage } from './MUCNewMessage'
+import { FOOTER_MARKER, MUCMessage } from './MUCMessage'
+import './MUCMessage.css'
+import { PlayerContext, PlayerContextInfo, RoomDetails } from './App'
+import { ExtendedAddress } from 'stanza/protocol'
 
 export default interface RoomProps {
   // details of room
@@ -32,15 +32,15 @@ export default interface RoomProps {
   showSendButton?: boolean
 }
 
-export const MUCRoom: React.FC<RoomProps> = ({ details, newMessage, height='735px', 
-  icon=<MeetingRoomIcon/>, compact, visible=true, showSendButton = true }: RoomProps) => {
+export const MUCRoom: React.FC<RoomProps> = ({ details, compact, newMessage, height='735px', 
+  icon=<MeetingRoomIcon/>, visible=true, showSendButton = true }: RoomProps) => {
     const {oldMessages, stanzaMgr, fullJid} = useContext(PlayerContext) as PlayerContextInfo
     
-    // const [members, setMembers] = useState<ReactElement>(<span/>);
-    const [messages, setMessages] = useState<XMPP.Stanzas.Message[]>([]);
+    // const [members, setMembers] = useState<ReactElement>(<span/>)
+    const [messages, setMessages] = useState<XMPP.Stanzas.Message[]>([])
     const [description, setDescription] = useState<string | ReactElement>('')
     const [title, setTitle] = useState<string>('')
-    const listRef = useRef(null);
+    const listRef = useRef(null)
     const [newMessagePending, setNewMessagePending] = useState<boolean>(false)
     
     // const showMembers = false
@@ -142,7 +142,6 @@ export const MUCRoom: React.FC<RoomProps> = ({ details, newMessage, height='735p
         id: new Date().getTime().toString()
       }
       stanzaMgr.sendMessage(msg)
-      // console.log('Sent message', msg, res)
     }
     
     const messageArray = (): React.ReactElement[] => {
@@ -167,4 +166,3 @@ export const MUCRoom: React.FC<RoomProps> = ({ details, newMessage, height='735p
         </Card>  
       )
     }
-    

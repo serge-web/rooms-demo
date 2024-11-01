@@ -1,5 +1,5 @@
-import { Datagrid, List, TextField } from 'react-admin';
-import { ColorField } from '../../helpers/ColorField';
+import { Datagrid, List, TextField } from 'react-admin'
+import { ColorField } from '../../helpers/ColorField'
 
 export const ForceList = () => (
     <List exporter={false}>
@@ -10,4 +10,4 @@ export const ForceList = () => (
             <TextField source="objective" />
         </Datagrid>
     </List>
-);
+)

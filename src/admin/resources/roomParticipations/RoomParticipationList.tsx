@@ -1,4 +1,4 @@
-import { Datagrid, List, ReferenceArrayField, ReferenceField, SingleFieldList, TextField } from 'react-admin';
+import { Datagrid, List, ReferenceArrayField, ReferenceField, SingleFieldList, TextField } from 'react-admin'
 
 export const RoomParticipationList = () => (
   <Datagrid>
@@ -14,7 +14,7 @@ export const RoomParticipationList = () => (
         <SingleFieldList/>
       </ReferenceArrayField>
   </Datagrid>
-);
+)
 
 export const RoomParticipationFullList = () => (
   <List exporter={false}>
@@ -32,4 +32,4 @@ export const RoomParticipationFullList = () => (
         </ReferenceArrayField>
     </Datagrid>
   </List>
-);
+)

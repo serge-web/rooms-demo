@@ -17,7 +17,7 @@ const ColorPicker: React.FC<PropTypes> = ({ source, label }) => {
   const [active, setActive] = useState(false)
   
   
-  const { id, field } = useInput({ source });
+  const { id, field } = useInput({ source })
 
   const handleClick = (): void => {
     setActive(!active)

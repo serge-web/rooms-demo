@@ -1,7 +1,7 @@
-import * as XMPP from 'stanza';
-import { PlayerContextInfo, RoomDetails } from '../App';
-import { SubsManager } from './SubscriptionManager';
-import { DiscoInfoResult, DiscoItemsResult, JSONItem, Message, ReceivedPresence } from 'stanza/protocol';
+import * as XMPP from 'stanza'
+import { PlayerContextInfo, RoomDetails } from '../App'
+import { SubsManager } from './SubscriptionManager'
+import { DiscoInfoResult, DiscoItemsResult, JSONItem, Message, ReceivedPresence } from 'stanza/protocol'
 
 /** class that handles subscriptions to pub-sub nodes, supporting callbacks
 * for when those documents change

@@ -1,12 +1,12 @@
-import { createContext, useCallback, useState } from 'react';
-import { Theme, ThemeOptions, ThemeProvider, createTheme } from "@mui/material/styles";
+import { createContext, useCallback, useState } from 'react'
+import { Theme, ThemeOptions, ThemeProvider, createTheme } from "@mui/material/styles"
 import './App.css'
 import Login from './Login'
 import  { Game, GameState } from './Game'
-import * as XMPP from 'stanza';
-import { StanzaManager } from './helpers/StanzaManager';
-import { AdminApp } from './admin/AdminApp';
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import * as XMPP from 'stanza'
+import { StanzaManager } from './helpers/StanzaManager'
+import { AdminApp } from './admin/AdminApp'
+import { BrowserRouter, Routes, Route } from "react-router-dom"
 
 export interface RoomDetails {
   jid: string
@@ -42,8 +42,7 @@ const baseTheme: Theme = createTheme({
       main: "#494c7d"
     }
   }
-});
-
+})
 
 function App() {
   
@@ -65,7 +64,7 @@ function App() {
       const newState = {...playerState, oldMessages} as PlayerContextInfo
       setPlayerState(newState)
     }
-  }, [playerState]);
+  }, [playerState])
   
   const updateGameState = useCallback((newGameState: GameState) => {
     const existingJSON = JSON.stringify(gameState)
@@ -73,7 +72,7 @@ function App() {
     if (existingJSON !== newJSON) {
       setGameState(newGameState)
     }
-  }, [gameState]);
+  }, [gameState])
   
   return (
     <BrowserRouter>

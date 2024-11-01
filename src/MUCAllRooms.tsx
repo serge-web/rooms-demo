@@ -1,10 +1,10 @@
-import * as XMPP from 'stanza';
+import * as XMPP from 'stanza'
 import * as FlexLayout from 'flexlayout-react'
-import 'flexlayout-react/style/light.css';  
-import { useEffect, useMemo, useState } from 'react';
-import { MUCRoom } from './MUCRoom';
-import './MUCAllRooms.css';
-import { RoomDetails } from './App';
+import 'flexlayout-react/style/light.css'
+import { useEffect, useMemo, useState } from 'react'
+import { MUCRoom } from './MUCRoom'
+import './MUCAllRooms.css'
+import { RoomDetails } from './App'
 
 export default interface AllRoomsProps {
   // id of room
@@ -19,7 +19,7 @@ export default interface AllRoomsProps {
 type Factory = (node: FlexLayout.TabNode) => React.ReactNode
 
 export const MUCAllRooms: React.FC<AllRoomsProps> = ( { rooms, newMessage }: AllRoomsProps) => {
-  const [modelData, setModelData] = useState<FlexLayout.Model | undefined>(undefined);
+  const [modelData, setModelData] = useState<FlexLayout.Model | undefined>(undefined)
 
   useEffect(() => {
     if (rooms.length > 0) {
@@ -32,7 +32,7 @@ export const MUCAllRooms: React.FC<AllRoomsProps> = ( { rooms, newMessage }: All
                   type: "tab",
                   name: room.name,
                   id: room.jid,
-                  component: "button",
+                  component: "button"
               }
           ]
       }})

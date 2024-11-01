@@ -1,20 +1,20 @@
 // MUCMessage.tsx
-import { Box, Button, ButtonGroup, Card, CardHeader, Tab, Tabs, Tooltip, Typography  } from '@mui/material';
-import './GameStatePanel.css';
-import { GameState, ForceDetails } from './Game';
-import * as XMPP from 'stanza';
-import { useState, useEffect, ReactElement, SyntheticEvent, useContext } from 'react';
-import { MUCRoom } from './MUCRoom';
-import { TextInputDialog } from './TextInputDialog';
-import ChatIcon from '@mui/icons-material/Chat';
-import Groups2Icon from '@mui/icons-material/Groups2';
-import AdsClickIcon from '@mui/icons-material/AdsClick';
-import React from 'react';
-import Person3Icon from '@mui/icons-material/Person3';
-import { ADMIN_CHANNEL, FEEDBACK_CHANNEL, GAME_STATE_NODE, GAME_THEME_NODE } from './Constants';
-import { GameContext, PlayerContext, PlayerContextInfo, RoomDetails } from './App';
-import { JSONItem } from 'stanza/protocol';
-import { NS_JSON_0 } from 'stanza/Namespaces';
+import { Box, Button, ButtonGroup, Card, CardHeader, Tab, Tabs, Tooltip, Typography  } from '@mui/material'
+import './GameStatePanel.css'
+import { GameState, ForceDetails } from './Game'
+import * as XMPP from 'stanza'
+import { useState, useEffect, ReactElement, SyntheticEvent, useContext } from 'react'
+import { MUCRoom } from './MUCRoom'
+import { TextInputDialog } from './TextInputDialog'
+import ChatIcon from '@mui/icons-material/Chat'
+import Groups2Icon from '@mui/icons-material/Groups2'
+import AdsClickIcon from '@mui/icons-material/AdsClick'
+import React from 'react'
+import Person3Icon from '@mui/icons-material/Person3'
+import { ADMIN_CHANNEL, FEEDBACK_CHANNEL, GAME_STATE_NODE, GAME_THEME_NODE } from './Constants'
+import { GameContext, PlayerContext, PlayerContextInfo, RoomDetails } from './App'
+import { JSONItem } from 'stanza/protocol'
+import { NS_JSON_0 } from 'stanza/Namespaces'
 
 export default interface GameStateProps {
   logout: () => void
@@ -29,17 +29,16 @@ export default interface GameStateProps {
   vCard: XMPP.Stanzas.VCardTemp | undefined | null
 }
 
-export const GameStatePanel: React.FC<GameStateProps> = ({ logout, sendMessage, showHidden, setShowHidden,  properName, isFeedbackObserver, isGameControl, newMessage, forceDetails, vCard
- }: GameStateProps) => {
+export const GameStatePanel: React.FC<GameStateProps> = ({ logout, sendMessage, showHidden, setShowHidden,  properName, isFeedbackObserver, isGameControl, newMessage, forceDetails, vCard }: GameStateProps) => {
   const {fullJid, domain, myRooms, stanzaMgr} = useContext(PlayerContext) as PlayerContextInfo
   const gameState = useContext(GameContext) as GameState
 
-  const [adminDetails, setAdminDetails] = useState<RoomDetails | undefined>(undefined);
-  const [feedbackDetails, setFeedbackDetails] = useState<RoomDetails | undefined>(undefined);
+  const [adminDetails, setAdminDetails] = useState<RoomDetails | undefined>(undefined)
+  const [feedbackDetails, setFeedbackDetails] = useState<RoomDetails | undefined>(undefined)
 
-  const [gameTime, setGameTime] = useState<string>('');
-  const [currentTab, setCurrentTab] = useState<number>(0);
-  const [showFeedback, setShowFeedback] = useState<boolean>(false);
+  const [gameTime, setGameTime] = useState<string>('')
+  const [currentTab, setCurrentTab] = useState<number>(0)
+  const [showFeedback, setShowFeedback] = useState<boolean>(false)
   const [userIcon, setUserIcon] = useState<ReactElement>(<></>) 
   const [objectivesIcon, setObjectivesIcon] = useState<ReactElement>(<></>)
 
@@ -134,7 +133,6 @@ export const GameStatePanel: React.FC<GameStateProps> = ({ logout, sendMessage, 
         from: fullJid
       }
       sendMessage(msg)
-      // console.log('Sent message', msg, res)
     }
   }  
 

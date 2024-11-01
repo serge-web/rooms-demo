@@ -1,7 +1,7 @@
-import { useRecordContext } from "react-admin";
+import { useRecordContext } from "react-admin"
 
 // regex for an html color code
-const htmlRegEx = /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/;
+const htmlRegEx = /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/
 
 // styling for the color field
 const divParams = (rgb: string) => ({ 
@@ -16,13 +16,13 @@ const divParams = (rgb: string) => ({
  * @returns 
  */
 export const ColorField = ({ source }: { source: string }) => {
-  const record = useRecordContext();
-  if (!record) return null;
-  const rgb = record[source];
+  const record = useRecordContext()
+  if (!record) return null
+  const rgb = record[source]
   // use regex to test if the string is a valid rgb color
   if (htmlRegEx.test(rgb)) {
-    return <div><div style={divParams(rgb)}>&nbsp;</div>{rgb}</div>;
+    return <div><div style={divParams(rgb)}>&nbsp;</div>{rgb}</div>
   } else {
-    return 'invalid ' + '(' + rgb + ')';
+    return 'invalid ' + '(' + rgb + ')'
   }
-};
+}

@@ -1,5 +1,5 @@
 
-import { AutocompleteInput, BooleanInput, Create, DeleteButton, Edit, PasswordInput, ReferenceInput, required, SaveButton, SimpleForm, TextInput, Toolbar, useRecordContext } from 'react-admin';
+import { AutocompleteInput, BooleanInput, Create, DeleteButton, Edit, PasswordInput, ReferenceInput, required, SaveButton, SimpleForm, TextInput, Toolbar, useRecordContext } from 'react-admin'
 
 interface UserFormProps {
   isEdit?: boolean
@@ -10,19 +10,19 @@ const NormalToolbar = (
       <SaveButton />
       <DeleteButton mutationMode="pessimistic" />
   </Toolbar>
-);
+)
 
 const JustSaveToolbar = (
   <Toolbar sx={{ display: 'flex', justifyContent: 'space-between' }}>
       <SaveButton />
       <DeleteButton disabled title='Cannot delete admin role' />
   </Toolbar>
-);
+)
 
 const BaseForm: React.FC<UserFormProps> = ( { isEdit }: UserFormProps) => 
   {
-    const record = useRecordContext();
-    if (!record) return null;
+    const record = useRecordContext()
+    if (!record) return null
     const isAdmin = record['id'] === 'admin'
     const toolbar = isAdmin ? JustSaveToolbar : NormalToolbar
     return (
@@ -42,7 +42,7 @@ export const UserEdit = () => (
     <Edit>
         <BaseForm isEdit={true} />
     </Edit>
-);
+)
 
 export const UserCreate = () => (
   <Create>

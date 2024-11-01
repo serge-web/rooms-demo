@@ -1,16 +1,16 @@
 // Login.tsx
-import * as XMPP from 'stanza';
+import * as XMPP from 'stanza'
 
-import './Login.css';
-import { WelcomePage } from './WelcomePage';
-import { SimpleDialog } from './SimpleDialog';
-import { PlayerContextInfo } from './App';
-import { useState } from 'react';
-import { ThemeOptions } from '@mui/material';
-import { StanzaManager } from './helpers/StanzaManager';
+import './Login.css'
+import { WelcomePage } from './WelcomePage'
+import { SimpleDialog } from './SimpleDialog'
+import { PlayerContextInfo } from './App'
+import { useState } from 'react'
+import { ThemeOptions } from '@mui/material'
+import { StanzaManager } from './helpers/StanzaManager'
 
 
-const wargames = ['localhost'];
+const wargames = ['localhost']
 
 export interface LoginProps {
   setPlayerState: (state: PlayerContextInfo | null) => void
@@ -20,13 +20,13 @@ export interface LoginProps {
   welcomeMsg?: string
 }
 
-export const Login: React.FC<LoginProps> = ({ setPlayerState, welcomeTitle, welcomeMsg, showAdmin }: LoginProps) => {
-  const [dialog, setDialog] = useState<string | null>(null);
-  const [dialogTitle, setDialogTitle] = useState<string>('');
+export const Login: React.FC<LoginProps> = ({ setPlayerState, welcomeTitle, welcomeMsg }: LoginProps) => {
+  const [dialog, setDialog] = useState<string | null>(null)
+  const [dialogTitle, setDialogTitle] = useState<string>('')
   
   const handleLogin = (selectedWargame: string, username: string, password: string) => {
-    console.log('Logging into ', selectedWargame,' with:', username, password);
-    const jid = username + '@' + selectedWargame;
+    console.log('Logging into ', selectedWargame,' with:', username, password)
+    const jid = username + '@' + selectedWargame
     // whether to use https or http
     // const securehttp = true
     const config = {
@@ -39,7 +39,7 @@ export const Login: React.FC<LoginProps> = ({ setPlayerState, welcomeTitle, welc
         // bosh: securehttp ? 'https://war-rooms.info/bosh' :'http://164.92.157.13:5280/http-bind'
       }
     }
-    const client = XMPP.createClient(config);
+    const client = XMPP.createClient(config)
     
     // client.on('raw:*', (direction, data) => {
     //     console.log('== ', new Date().toISOString(), direction, data)
@@ -74,7 +74,7 @@ export const Login: React.FC<LoginProps> = ({ setPlayerState, welcomeTitle, welc
         }
       })
       
-      client.connect();
+      client.connect()
       
       client.off('bosh:terminate', (direction) => {
         console.log('ignoring terminate', direction)
@@ -87,11 +87,11 @@ export const Login: React.FC<LoginProps> = ({ setPlayerState, welcomeTitle, welc
     return ( 
       <>
       <div id='login-container'>
-      <WelcomePage welcomeTitle={welcomeTitle} welcomeMsg={welcomeMsg} wargames={wargames} showAdmin={showAdmin} handleLogin={handleLogin} />
+      <WelcomePage welcomeTitle={welcomeTitle} welcomeMsg={welcomeMsg} wargames={wargames} handleLogin={handleLogin} />
       </div> 
       <SimpleDialog dialog={dialog} setDialog={setDialog} dialogTitle={dialogTitle} />
       </>
     )
   }
   
-  export default Login;
+  export default Login

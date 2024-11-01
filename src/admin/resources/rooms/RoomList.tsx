@@ -1,4 +1,4 @@
-import { Datagrid, List, TextField } from "react-admin";
+import { Datagrid, List, TextField } from "react-admin"
 
 export const RoomList = () => (
   <List exporter={false}>
@@ -8,4 +8,4 @@ export const RoomList = () => (
           <TextField source="type" />
       </Datagrid>
   </List>
-);
+)

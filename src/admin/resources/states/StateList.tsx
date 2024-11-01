@@ -1,5 +1,5 @@
-import { Datagrid, DateField, List, TextField } from 'react-admin';
-import { DurationField } from '../../helpers/DurationField';
+import { Datagrid, DateField, List, TextField } from 'react-admin'
+import { DurationField } from '../../helpers/DurationField'
 
 export const StateList = () => (
     <List exporter={false}>
@@ -12,4 +12,4 @@ export const StateList = () => (
             <DurationField source="planningAllowance" />
         </Datagrid>
     </List>
-);
+)

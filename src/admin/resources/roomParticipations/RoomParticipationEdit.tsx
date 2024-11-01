@@ -1,4 +1,4 @@
-import { AutocompleteInput, Create, Edit, ReferenceArrayInput, ReferenceInput, SimpleForm, TextInput } from 'react-admin';
+import { AutocompleteInput, Create, Edit, ReferenceArrayInput, ReferenceInput, SimpleForm, TextInput } from 'react-admin'
 
 export const RoomParticipationEdit = () => (
     <Edit>
@@ -13,7 +13,7 @@ export const RoomParticipationEdit = () => (
     <ReferenceArrayInput reference="templates" source="templates_id"/>
     </SimpleForm>
     </Edit>
-);
+)
 
 export const RoomParticipationCreate = () => (
     <Create>
@@ -25,5 +25,5 @@ export const RoomParticipationCreate = () => (
     <ReferenceArrayInput reference="templates" source="templates_id"/>
     </SimpleForm>
     </Create>
-);
+)
 

@@ -1,4 +1,4 @@
-import { BooleanField, Datagrid, List, ReferenceField, TextField } from 'react-admin';
+import { BooleanField, Datagrid, List, ReferenceField, TextField } from 'react-admin'
 
 export const UserList = () => (
     <List exporter={false}>
@@ -10,4 +10,4 @@ export const UserList = () => (
             <BooleanField source="isFeedbackViewer" />
         </Datagrid>
     </List>
-);
+)

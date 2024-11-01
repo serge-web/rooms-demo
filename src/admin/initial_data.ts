@@ -33,4 +33,4 @@ const defaultData = {
     {id:4, rooms_id: 2, forces_id: [], users_id: ['blue-media'], templates_id: [3]},
   ]
 }
-export default defaultData;
+export default defaultData

@@ -1,6 +1,6 @@
-import * as XMPP from 'stanza';
-import { StanzaErrorCondition } from 'stanza/Constants';
-import { JSONItem, PubsubEventItems, PubsubItem, PubsubSubscription, PubsubSubscriptionOptions, PubsubSubscriptions, StanzaError } from 'stanza/protocol';
+import * as XMPP from 'stanza'
+import { StanzaErrorCondition } from 'stanza/Constants'
+import { JSONItem, PubsubEventItems, PubsubItem, PubsubSubscription, PubsubSubscriptionOptions, PubsubSubscriptions, StanzaError } from 'stanza/protocol'
 
 export type SubsCallback<t> = (msg: t) => void
 

@@ -1,5 +1,5 @@
-import { Edit, SimpleForm, TextInput } from 'react-admin';
-import ColorPicker from '../../helpers/ColorPicker';
+import { Edit, SimpleForm, TextInput } from 'react-admin'
+import ColorPicker from '../../helpers/ColorPicker'
 
 export const ForceEdit = () => (
     <Edit actions={false}>
@@ -10,4 +10,4 @@ export const ForceEdit = () => (
             <TextInput multiline minRows={5} source="objective" />
         </SimpleForm>
     </Edit>
-);
+)

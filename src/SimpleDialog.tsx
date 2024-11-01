@@ -1,6 +1,6 @@
 // MUCMessage.tsx
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle } from '@mui/material';
-import { WarningAmber } from '@mui/icons-material';
+import { Button, Dialog, DialogActions, DialogContent, DialogTitle } from '@mui/material'
+import { WarningAmber } from '@mui/icons-material'
 
 export default interface SimpleDialogProps {
   dialog: string | null

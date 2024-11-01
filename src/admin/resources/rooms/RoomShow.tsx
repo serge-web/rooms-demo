@@ -1,5 +1,5 @@
-import { ReferenceManyField, Show, SimpleShowLayout, TextField } from 'react-admin';
-import { RoomParticipationList } from '../roomParticipations/RoomParticipationList';
+import { ReferenceManyField, Show, SimpleShowLayout, TextField } from 'react-admin'
+import { RoomParticipationList } from '../roomParticipations/RoomParticipationList'
 
 
 export const RoomShow = () => (
@@ -13,4 +13,4 @@ export const RoomShow = () => (
             </ReferenceManyField>    
         </SimpleShowLayout>
     </Show>
-);
+)
