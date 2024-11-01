@@ -1,5 +1,5 @@
-import moment from "moment"
-import { useRecordContext } from "react-admin"
+import moment from 'moment'
+import { useRecordContext } from 'react-admin'
 
 export const DurationField = ({ source }: { source: string }) => {
   const record = useRecordContext()

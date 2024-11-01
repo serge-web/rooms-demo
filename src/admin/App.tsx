@@ -1,10 +1,10 @@
-import React from "react"
-import { Admin, Resource } from "react-admin"
-import { Layout } from "./Layout"
+import React from 'react'
+import { Admin, Resource } from 'react-admin'
+import { Layout } from './Layout'
 
 const App = () => (
   <Admin layout={Layout}>
-    <Resource name="users" />
+    <Resource name='users' />
   </Admin>
 )
 

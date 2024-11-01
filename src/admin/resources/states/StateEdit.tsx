@@ -7,13 +7,13 @@ const validateDuration = [required(),  regex(iso8601Duration, durationError)]
 
 export const StateEdit = () => (
     <Edit>
-        <SimpleForm mode="onBlur" reValidateMode="onBlur">
-            <TextInput disabled source="id" />
-            <TextInput source="description" />
-            <NumberInput source="turn" validate={required()} />
-            <DateTimeInput source="gameDate" validate={required()}/>
-            <TextInput source="turnTime" validate={validateDuration}/>
-            <TextInput source="planningAllowance"  validate={validateDuration}/>
+        <SimpleForm mode='onBlur' reValidateMode='onBlur'>
+            <TextInput disabled source='id' />
+            <TextInput source='description' />
+            <NumberInput source='turn' validate={required()} />
+            <DateTimeInput source='gameDate' validate={required()}/>
+            <TextInput source='turnTime' validate={validateDuration}/>
+            <TextInput source='planningAllowance'  validate={validateDuration}/>
         </SimpleForm>
     </Edit>
 )

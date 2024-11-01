@@ -23,5 +23,6 @@ export default tseslint.config({
       { allowConstantExport: true },
     ],
     'semi': ['error', 'never'],
+    'quotes': ['error', 'single']
   },
 })

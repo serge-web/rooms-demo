@@ -226,10 +226,10 @@ export const GameStatePanel: React.FC<GameStateProps> = ({ logout, sendMessage, 
     //   data: {
     //     palette: {
     //       primary: {
-    //         main: "#fa2461"
+    //         main: '#fa2461'
     //       },
     //       secondary: {
-    //         main: "#494c7d"
+    //         main: '#494c7d'
     //       }
     //     },
     //     typography: {

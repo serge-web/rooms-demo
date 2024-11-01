@@ -8,7 +8,7 @@ interface UserFormProps {
 const NormalToolbar = (
   <Toolbar sx={{ display: 'flex', justifyContent: 'space-between' }}>
       <SaveButton />
-      <DeleteButton mutationMode="pessimistic" />
+      <DeleteButton mutationMode='pessimistic' />
   </Toolbar>
 )
 
@@ -27,14 +27,14 @@ const BaseForm: React.FC<UserFormProps> = ( { isEdit }: UserFormProps) =>
     const toolbar = isAdmin ? JustSaveToolbar : NormalToolbar
     return (
   <SimpleForm sx={{width:'500px'}} toolbar={toolbar}>
-    <TextInput readOnly={isEdit} source="id" validate={required()} />
-    <TextInput source="name" validate={required()} />
-    <PasswordInput source="password" validate={required()} />
-    <ReferenceInput label="Force" source="forces_id" reference="forces" >
-      <AutocompleteInput label="Force" />
+    <TextInput readOnly={isEdit} source='id' validate={required()} />
+    <TextInput source='name' validate={required()} />
+    <PasswordInput source='password' validate={required()} />
+    <ReferenceInput label='Force' source='forces_id' reference='forces' >
+      <AutocompleteInput label='Force' />
     </ReferenceInput>
-    <BooleanInput source="isGameControl" />
-    <BooleanInput source="isFeedbackViewer" />
+    <BooleanInput source='isGameControl' />
+    <BooleanInput source='isFeedbackViewer' />
   </SimpleForm>
 )}
 

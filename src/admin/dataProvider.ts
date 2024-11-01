@@ -1,5 +1,5 @@
-import { fetchUtils, Options } from "react-admin"
-import ourSimpleRestProvider from "./ourSimpleDataProvider"
+import { fetchUtils, Options } from 'react-admin'
+import ourSimpleRestProvider from './ourSimpleDataProvider'
 
 
 const httpClient = (url: string, options: Options = {}) => {
