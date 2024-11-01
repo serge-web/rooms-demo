@@ -30,6 +30,28 @@ export class StanzaManager {
   subscribeToNode(node: string, callback: <T>(msg: T) => void): void {
     this.subsMgr?.subscribeToNode(node, callback)
   }
+  checkInitialized(): boolean {
+    const name = '_admin@' + this.mucJid
+    console.log('about to get disco for ', name)
+    let init = false
+    this.client.getDiscoInfo(name).then((config:DiscoInfoResult) => {
+      console.log('config', config)
+      init = true
+    }).catch((err) => {
+      console.log('err', err)
+      if(err.error?.condition === 'item-not-found') {
+        console.log('item-not-found')
+        return false
+      } else {
+        console.error(err)
+        return false
+      }
+    }).finally( () => {
+      console.log('finally', init)  
+    })
+    console.log('is it init?', init)
+    return init
+  }
   async disconnect(): Promise<void> { 
     const promises =this.myRooms.map((room) => this.client.leaveRoom(room.jid))
     Promise.all(promises).catch((err: unknown) => {
@@ -66,6 +88,7 @@ export class StanzaManager {
           const jid = serviceJids[index]
           if(capability.features.find((feature) => feature === 'http://jabber.org/protocol/muc')) { 
             this.mucJid = jid as string
+            console.log('found muc', jid)
             state.mucJid = jid
           }
           if(capability.features.find((feature) => feature === 'http://jabber.org/protocol/pubsub')) { 

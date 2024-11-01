@@ -15,6 +15,7 @@ import { ADMIN_CHANNEL, FEEDBACK_CHANNEL, GAME_STATE_NODE, GAME_THEME_NODE } fro
 import { GameContext, PlayerContext, PlayerContextInfo, RoomDetails } from './App';
 import { JSONItem } from 'stanza/protocol';
 import { NS_JSON_0 } from 'stanza/Namespaces';
+import initialiseWargame from './helpers/initialiseWargame';
 
 export default interface GameStateProps {
   logout: () => void
@@ -147,10 +148,11 @@ export const GameStatePanel: React.FC<GameStateProps> = ({ logout, sendMessage, 
   }
 
   const tmpSendMessage = (): void => {
-    console.log('', !!GAME_THEME_NODE, !!GAME_STATE_NODE)
+    console.log('', !!GAME_THEME_NODE, !!GAME_STATE_NODE, stanzaMgr)
     console.clear()
 
-
+    initialiseWargame(stanzaMgr)
+    console.log('init complete')
     // xClient.getDefaultNodeConfig(pubJid || '').then((items) => {
     //   console.log('Got disco', items, jid)   
     //  })
