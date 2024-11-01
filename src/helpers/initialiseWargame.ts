@@ -30,6 +30,8 @@ const initialiseWargame = (subMgr: StanzaManager) => {
   console.log('checking wargame init')
   const initialised = subMgr.checkInitialized()
 
+  console.log('game init', initialised)
+
   if (initialised) {
     subMgr.client.getRoomConfig(adminRoom.name + '@' + subMgr.mucJid).then((res) => {
       return console.log('config', res)

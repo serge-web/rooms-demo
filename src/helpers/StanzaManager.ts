@@ -31,18 +31,26 @@ export class StanzaManager {
     this.subsMgr?.subscribeToNode(node, callback)
   }
   checkInitialized(): boolean {
-    this.client.getDiscoInfo('_admin@' + this.mucJid).then((config) => {
-      console.log('congif', config)
-      return true
+    const name = '_admin@' + this.mucJid
+    console.log('about to get disco for ', name)
+    let init = false
+    this.client.getDiscoInfo(name).then((config:DiscoInfoResult) => {
+      console.log('config', config)
+      init = true
     }).catch((err) => {
+      console.log('err', err)
       if(err.error?.condition === 'item-not-found') {
+        console.log('item-not-found')
         return false
       } else {
         console.error(err)
         return false
       }
+    }).finally( () => {
+      console.log('finally', init)  
     })
-    return false
+    console.log('is it init?', init)
+    return init
   }
   async disconnect(): Promise<void> { 
     const promises =this.myRooms.map((room) => this.client.leaveRoom(room.jid))
