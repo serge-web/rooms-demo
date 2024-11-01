@@ -1,4 +1,4 @@
-import { useRecordContext } from "react-admin"
+import { useRecordContext } from 'react-admin'
 
 // regex for an html color code
 const htmlRegEx = /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/

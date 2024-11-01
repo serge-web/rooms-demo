@@ -25,14 +25,14 @@ export const MUCAllRooms: React.FC<AllRoomsProps> = ( { rooms, newMessage }: All
     if (rooms.length > 0) {
       const roomNodes = rooms.map((room):FlexLayout.IJsonTabSetNode => {
         return {
-          type: "tabset",
+          type: 'tabset',
           weight: 50,
           children: [
               {
-                  type: "tab",
+                  type: 'tab',
                   name: room.name,
                   id: room.jid,
-                  component: "button"
+                  component: 'button'
               }
           ]
       }})
@@ -46,7 +46,7 @@ export const MUCAllRooms: React.FC<AllRoomsProps> = ( { rooms, newMessage }: All
         },
         borders: [],
         layout: {
-            type: "row",
+            type: 'row',
             weight: 100,
             children: roomNodes
         }

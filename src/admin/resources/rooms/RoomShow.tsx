@@ -5,10 +5,10 @@ import { RoomParticipationList } from '../roomParticipations/RoomParticipationLi
 export const RoomShow = () => (
     <Show>
         <SimpleShowLayout sx={{textAlign:'left'}}>
-            <TextField source="id"/>
-            <TextField source="name" />
-            <TextField source="type" />
-            <ReferenceManyField reference="roomParticipations" target="rooms_id" label="Participants">
+            <TextField source='id'/>
+            <TextField source='name' />
+            <TextField source='type' />
+            <ReferenceManyField reference='roomParticipations' target='rooms_id' label='Participants'>
                 <RoomParticipationList/>
             </ReferenceManyField>    
         </SimpleShowLayout>
